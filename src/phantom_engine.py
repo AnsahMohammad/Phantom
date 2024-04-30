@@ -5,25 +5,32 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin
 import json
+from .logger import Logger
+
 
 class Phantom:
-    def __init__(self, url, num_threads=1, show_logs=False, print_logs=False, burnout=700):
+    def __init__(
+        self, urls, num_threads=1, show_logs=False, print_logs=False, burnout=700
+    ):
         print("Phantom Crawler Started")
 
-        self.start_time = time.time()
         self.print_logs = print_logs
         self.thread_count = num_threads
         self.show_logs = show_logs
         self.BURNOUT = burnout
-        
-        self.url = url
+        self.urls = urls
+
+        self.len_urls = len(self.urls)
+        self.start_time = time.time()
+        self.url = urls[0]
         self.threads = []
         self.id_root = {}
-        self.urls = set()
+        self.visited_urls = set()
         self.kill = False
         self.logger = Logger(self.show_logs)
         self.log = self.logger.log
         self.storage = Storage()
+        self.title_storage = Storage("src/titles.json")
 
         self.log("INIT-Phantom", "Phantom")
 
@@ -43,7 +50,7 @@ class Phantom:
             status += f"Root : {url} \n"
             status += f"Epoch : {epoch} \n"
             # status += f"Traversed : {traversed} \n"
-            status += f"Queue : {queue}"
+            # status += f"Queue : {queue}"
 
             self.log(status, f"Crawler {id}")
 
@@ -57,20 +64,23 @@ class Phantom:
                 local_urls = self.update_urls(local_urls, id)
 
             url = queue.pop(0)
+            # clean the url
+            url = parser.clean_url(url)
 
             if url in local_urls:
                 self.log("Already scanned", f"Crawler {id}")
                 continue
-            
+
             local_urls.add(url)
             traversed.append(url)
             self.log(f"Traversing {url}", f"Crawler {id}")
-            neighbors, content = parser.parse(url)
+            neighbors, content, url, title = parser.parse(url)
             self.storage.add(url, content)
+            self.title_storage.add(url, title)
             queue.extend(neighbors)
             # self.log(f"Neighbors {neighbors}", f"Crawler {id}")
             epoch += 1
-        
+
         queue.clear()
         self.log("CRAWLER STOPPED", f"Crawler {id}")
 
@@ -82,20 +92,20 @@ class Phantom:
     #         # crawler.skip()
 
     #     crawler.kill()
-            
+
     def update_urls(self, local_url, id):
         """update the local_urls with global index"""
         self.log("Updating URLs", f"Crawler {id}")
         for url in local_url:
-            self.urls.add(url)
+            self.visited_urls.add(url)
 
-        return self.urls
+        return self.visited_urls
 
     def run(self):
         while len(self.threads) < self.thread_count:
-            self.generate(self.url)
+            self.generate(self.urls[random.randint(0, self.len_urls - 1)])
 
-        for thread in self.threads:    
+        for thread in self.threads:
             thread.start()
 
     def generate(self, url):
@@ -106,10 +116,10 @@ class Phantom:
     def stop(self):
         self.kill = True
         self.log("STOP-Phantom Issued", "Phantom")
-        
+
         for threads in self.threads:
             threads.join()
-        
+
         self.log("STOP-Phantom Stopped", "Phantom")
         self.end()
 
@@ -120,31 +130,33 @@ class Phantom:
         print("Threads : ")
         for thread in self.threads:
             print(thread)
-        
+
         print("thread : Root : ")
         for id, root in self.id_root.items():
             print(f"{id} : {root}")
-        
+
         print("Time Elapsed : ", time.time() - self.start_time)
-        print("Burnout : ", self.BURNOUT)      
+        print("Burnout : ", self.BURNOUT)
 
     def end(self):
         # cleaning function
         self.stats()
-        
+
         self.storage.save()
         self.log("Saved the indices", "Phantom")
+        self.title_storage.save()
+        self.log("Saved the titles", "Phantom")
 
         if self.print_logs:
             self.logger.save()
-        
+
         self.threads.clear()
         self.id_root.clear()
         print("Phantom Crawler Ended")
 
 
 class Parser:
-    def __init__(self, show_logs):
+    def __init__(self, show_logs=True):
         self.show_logs = show_logs
         self.log = Logger(self.show_logs).log
 
@@ -160,40 +172,29 @@ class Parser:
     def parse(self, url):
         self.log(f"parsing {url}", "Parser")
 
-        cleaned_url = self.clean_url(url)
-        content = self.fetch(cleaned_url)
+        # cleaned_url = self.clean_url(url)   since already cleaned disabled
+        content = self.fetch(url)
 
-        soup = BeautifulSoup(content, 'html.parser')
+        soup = BeautifulSoup(content, "html.parser")
+
+        title = soup.title.string if soup.title else None
 
         text = soup.get_text()
         words = text.split()
-        links = [urljoin(url, link.get('href')) for link in soup.find_all('a')]
+        links = [urljoin(url, link.get("href")) for link in soup.find_all("a")]
 
-        return links, words
+        return links, words, url, title
 
+    def url_parser(self, url):
+        self.log(f"parsing {url}", "Parser")
 
-class Logger:
-    def __init__(self, show_logs=False):
-        self.show_logs = show_logs
-        self.logs = []
+        cleaned_url = self.clean_url(url)
+        content = self.fetch(cleaned_url)
 
-    def log(self, content, id=None, **kwargs):
-        log_ = f"{time.strftime('%H:%M:%S')} : "
-        if id:
-            log_ += f"{id} : "
-        
-        log_ += f"{content} | {kwargs}"
+        soup = BeautifulSoup(content, "html.parser")
+        title = soup.title.string
+        return (title, cleaned_url)
 
-        self.logs.append(log_)
-        if self.show_logs:
-            print(log_)
-    
-    def save(self):
-        with open("logs.txt", "w") as f:
-            for log in self.logs:
-                f.write(log + "\n")
-        self.log("Logs saved to logs.txt", "Log")
-        self.logs.clear()
 
 class Crawler:
     def __init__(self, url, id):
@@ -223,21 +224,20 @@ class Crawler:
 
         while queue and self.running and not self.kill:
             url = queue.pop(0)
-            
+
             if url in self.traversed:
                 self.log(f"Already traversed {url}", f"Crawler {self.id}")
                 continue
 
-
             self.log(f"Traverse {self.url}", f"Crawler {self.id}")
             self.traversed.add(self.url)
-            
+
             neighbours = self.parse(self.url)
             queue.extend(neighbours)
-        
+
         self.running = False
         self.log("Crawling stopped", f"Crawler {self.id}")
-    
+
     def kill(self):
         self.log("Kill issued", f"Crawler {self.id}")
         self.kill = True
@@ -252,13 +252,14 @@ class Crawler:
     def pause(self):
         self.log("Pause issued", f"Crawler {self.id}")
         self.running = False
-    
+
     def resume(self):
         self.log("Resume issued", f"Crawler {self.id}")
         self.running = True
 
+
 class Storage:
-    def __init__(self, filename="index.json"):
+    def __init__(self, filename="src/index.json"):
         self.filename = filename
         self.data = {}
 
@@ -266,11 +267,11 @@ class Storage:
         self.data[key] = value
 
     def save(self):
-        with open(self.filename, 'w') as f:
+        with open(self.filename, "w") as f:
             json.dump(self.data, f)
 
-phantom = Phantom("https://github.com/AnsahMohammad", 6, show_logs=True, print_logs=True)
-phantom.run()
-time.sleep(30)
-phantom.stop()
 
+# phantom = Phantom(num_threads=8,urls=["https://github.com/AnsahMohammad"], show_logs=True, print_logs=True)
+# phantom.run()
+# time.sleep(30)
+# phantom.stop()
