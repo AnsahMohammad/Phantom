@@ -30,6 +30,7 @@ class Phantom:
         self.logger = Logger(self.show_logs)
         self.log = self.logger.log
         self.storage = Storage()
+        self.title_storage = Storage("src/titles.json")
 
         self.log("INIT-Phantom", "Phantom")
 
@@ -63,6 +64,8 @@ class Phantom:
                 local_urls = self.update_urls(local_urls, id)
 
             url = queue.pop(0)
+            # clean the url
+            url = parser.clean_url(url)
 
             if url in local_urls:
                 self.log("Already scanned", f"Crawler {id}")
@@ -71,8 +74,9 @@ class Phantom:
             local_urls.add(url)
             traversed.append(url)
             self.log(f"Traversing {url}", f"Crawler {id}")
-            neighbors, content = parser.parse(url)
+            neighbors, content, url, title = parser.parse(url)
             self.storage.add(url, content)
+            self.title_storage.add(url, title)
             queue.extend(neighbors)
             # self.log(f"Neighbors {neighbors}", f"Crawler {id}")
             epoch += 1
@@ -140,6 +144,8 @@ class Phantom:
 
         self.storage.save()
         self.log("Saved the indices", "Phantom")
+        self.title_storage.save()
+        self.log("Saved the titles", "Phantom")
 
         if self.print_logs:
             self.logger.save()
@@ -166,16 +172,18 @@ class Parser:
     def parse(self, url):
         self.log(f"parsing {url}", "Parser")
 
-        cleaned_url = self.clean_url(url)
-        content = self.fetch(cleaned_url)
+        # cleaned_url = self.clean_url(url)   since already cleaned disabled
+        content = self.fetch(url)
 
         soup = BeautifulSoup(content, "html.parser")
+
+        title = soup.title.string if soup.title else None
 
         text = soup.get_text()
         words = text.split()
         links = [urljoin(url, link.get("href")) for link in soup.find_all("a")]
 
-        return links, words
+        return links, words, url, title
 
     def url_parser(self, url):
         self.log(f"parsing {url}", "Parser")
@@ -251,7 +259,7 @@ class Crawler:
 
 
 class Storage:
-    def __init__(self, filename="index.json"):
+    def __init__(self, filename="src/index.json"):
         self.filename = filename
         self.data = {}
 

@@ -79,13 +79,13 @@ class PhantomIndexer:
 
     def save(self):
         data = {"tfidf": self.tfidf, "idf": self.idf, "tf": self.tf}
-        with open("indexed.json", "w") as f:
+        with open("src/indexed.json", "w") as f:
             json.dump(data, f)
 
         self.log("Data Saved", "Phantom-Indexer")
 
 
-processor = PhantomIndexer("index.json")
+processor = PhantomIndexer("src/index.json")
 processor.process()
 processor.save()
 print("Indexing completed!")

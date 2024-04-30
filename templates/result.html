@@ -74,9 +74,8 @@
     <hr />
     <div class="result">
         {% for item in result %}
-          <a href="{{ item[1] }}">
-            <h2>{{ item[0] }}</h2>
-            <P>{{ item[2] }}</P>
+          <a href="{{ item[0] }}">
+            <h2>{{ item[2] }}</h2>
           </a>
         {% endfor %}
     </div>
