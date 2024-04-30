@@ -247,7 +247,7 @@ class Storage:
         with open(self.filename, 'w') as f:
             json.dump(self.data, f)
 
-phantom = Phantom(num_threads=8,urls=["https://github.com/AnsahMohammad"], show_logs=True, print_logs=True)
-phantom.run()
-time.sleep(30)
-phantom.stop()
+# phantom = Phantom(num_threads=8,urls=["https://github.com/AnsahMohammad"], show_logs=True, print_logs=True)
+# phantom.run()
+# time.sleep(30)
+# phantom.stop()
