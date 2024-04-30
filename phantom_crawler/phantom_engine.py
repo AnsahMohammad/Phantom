@@ -1,6 +1,10 @@
 import threading
 import time
 import random
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urlparse, urljoin
+import json
 
 class Phantom:
     def __init__(self, url, num_threads=1, show_logs=False, print_logs=False, burnout=700):
@@ -19,6 +23,7 @@ class Phantom:
         self.kill = False
         self.logger = Logger(self.show_logs)
         self.log = self.logger.log
+        self.storage = Storage()
 
         self.log("INIT-Phantom", "Phantom")
 
@@ -26,22 +31,22 @@ class Phantom:
         burnout = self.BURNOUT
         start_time = time.time()
         local_urls = set()
+        traversed = []
         queue = []
         queue.append(url)
-        parser = Parser()
-        epoch = 0
+        parser = Parser(self.show_logs)
+        epoch = 1
 
         def status():
             self.log("Status requested", f"Crawler {id}")
             status = f"Crawler {id} \n"
             status += f"Root : {url} \n"
             status += f"Epoch : {epoch} \n"
-            status += f"Traversed : {local_urls} \n"
+            # status += f"Traversed : {traversed} \n"
             status += f"Queue : {queue}"
 
             self.log(status, f"Crawler {id}")
 
-        # while not kill and time.time() - self.start_time < burnout:
         while queue and not self.kill:
             if time.time() - start_time > burnout:
                 self.log("Burnout", f"Crawler {id}")
@@ -58,9 +63,12 @@ class Phantom:
                 continue
             
             local_urls.add(url)
+            traversed.append(url)
             self.log(f"Traversing {url}", f"Crawler {id}")
-            neighbors = parser.parse(url)
+            neighbors, content = parser.parse(url)
+            self.storage.add(url, content)
             queue.extend(neighbors)
+            # self.log(f"Neighbors {neighbors}", f"Crawler {id}")
             epoch += 1
         
         queue.clear()
@@ -106,6 +114,7 @@ class Phantom:
         self.end()
 
     def stats(self):
+        self.log("Status requested ", "Phantom")
         # stats function
         print("Number of threads : ", self.thread_count)
         print("Threads : ")
@@ -122,6 +131,9 @@ class Phantom:
     def end(self):
         # cleaning function
         self.stats()
+        
+        self.storage.save()
+        self.log("Saved the indices", "Phantom")
 
         if self.print_logs:
             self.logger.save()
@@ -132,18 +144,36 @@ class Phantom:
 
 
 class Parser:
-    def __init__(self):
-        self.show_logs = True
+    def __init__(self, show_logs):
+        self.show_logs = show_logs
         self.log = Logger(self.show_logs).log
 
-    def parse(self, url):
-        if self.show_logs:
-            self.log(f"parsing {url}", "Parser")
+    def clean_url(self, url):
+        parsed = urlparse(url)
+        cleaned = parsed.scheme + "://" + parsed.netloc + parsed.path
+        return cleaned
 
-        return [f"hello{random.randint(0,1000)}.com"]
+    def fetch(self, url):
+        response = requests.get(url)
+        return response.content
+
+    def parse(self, url):
+        self.log(f"parsing {url}", "Parser")
+
+        cleaned_url = self.clean_url(url)
+        content = self.fetch(cleaned_url)
+
+        soup = BeautifulSoup(content, 'html.parser')
+
+        text = soup.get_text()
+        words = text.split()
+        links = [urljoin(url, link.get('href')) for link in soup.find_all('a')]
+
+        return links, words
+
 
 class Logger:
-    def __init__(self, show_logs=True):
+    def __init__(self, show_logs=False):
         self.show_logs = show_logs
         self.logs = []
 
@@ -227,9 +257,20 @@ class Crawler:
         self.log("Resume issued", f"Crawler {self.id}")
         self.running = True
 
+class Storage:
+    def __init__(self, filename="index.json"):
+        self.filename = filename
+        self.data = {}
 
-spyder = Phantom("https://www.google.com", 6)
-spyder.run()
-time.sleep(5)
-spyder.stop()
+    def add(self, key, value):
+        self.data[key] = value
+
+    def save(self):
+        with open(self.filename, 'w') as f:
+            json.dump(self.data, f)
+
+phantom = Phantom("https://github.com/AnsahMohammad", 6, show_logs=True, print_logs=True)
+phantom.run()
+time.sleep(30)
+phantom.stop()
 
