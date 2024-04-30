@@ -22,7 +22,7 @@ class Phantom_Query:
         self.lookup = set(self.idf.keys())
         self.log("Query Engine Ready", "Query_Engine")
 
-    def query(self, query):
+    def query(self, query, count = 10):
         self.log(f"Query recieved : {query}", "Query_Engine")
         query = query.split()
         query_len = len(query)
@@ -40,9 +40,9 @@ class Phantom_Query:
             scores[doc] = score
 
         ranked_docs = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-        self.log(f"Ranked documents : {ranked_docs[:10]}", "Query_Engine")
+        self.log(f"Ranked documents : {ranked_docs[:count]}", "Query_Engine")
 
-        return ranked_docs
+        return ranked_docs[:count]
 
     def run(self):
         while True:

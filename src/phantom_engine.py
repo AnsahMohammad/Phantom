@@ -150,7 +150,7 @@ class Phantom:
 
 
 class Parser:
-    def __init__(self, show_logs):
+    def __init__(self, show_logs=True):
         self.show_logs = show_logs
         self.log = Logger(self.show_logs).log
 
@@ -176,6 +176,16 @@ class Parser:
         links = [urljoin(url, link.get("href")) for link in soup.find_all("a")]
 
         return links, words
+
+    def url_parser(self, url):
+        self.log(f"parsing {url}", "Parser")
+
+        cleaned_url = self.clean_url(url)
+        content = self.fetch(cleaned_url)
+
+        soup = BeautifulSoup(content, "html.parser")
+        title = soup.title.string
+        return (title, cleaned_url)
 
 
 class Crawler:
