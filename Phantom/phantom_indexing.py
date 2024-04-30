@@ -22,6 +22,7 @@ class PhantomIndexer:
         self.tf = {}
         self.idf = {}
         self.tfidf = {}
+        self.showlogs = True
 
         self.logger = Logger(self.showlogs)
         self.log = self.logger.log

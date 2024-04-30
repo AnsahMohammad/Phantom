@@ -46,7 +46,7 @@ class Phantom:
             status += f"Root : {url} \n"
             status += f"Epoch : {epoch} \n"
             # status += f"Traversed : {traversed} \n"
-            status += f"Queue : {queue}"
+            # status += f"Queue : {queue}"
 
             self.log(status, f"Crawler {id}")
 
