@@ -142,7 +142,6 @@ class Phantom:
         self.id_root.clear()
         print("Phantom Crawler Ended")
 
-
 class Parser:
     def __init__(self, show_logs):
         self.show_logs = show_logs
@@ -170,7 +169,6 @@ class Parser:
         links = [urljoin(url, link.get('href')) for link in soup.find_all('a')]
 
         return links, words
-
 
 class Logger:
     def __init__(self, show_logs=False):
@@ -269,8 +267,7 @@ class Storage:
         with open(self.filename, 'w') as f:
             json.dump(self.data, f)
 
-phantom = Phantom("https://github.com/AnsahMohammad", 6, show_logs=True, print_logs=True)
-phantom.run()
-time.sleep(30)
-phantom.stop()
-
+# phantom = Phantom("https://github.com/AnsahMohammad", 6, show_logs=True, print_logs=True)
+# phantom.run()
+# time.sleep(30)
+# phantom.stop()
