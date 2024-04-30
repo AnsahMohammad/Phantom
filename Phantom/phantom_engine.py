@@ -5,21 +5,24 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin
 import json
+from logger import Logger
 
 class Phantom:
-    def __init__(self, url, num_threads=1, show_logs=False, print_logs=False, burnout=700):
+    def __init__(self, urls, num_threads=1, show_logs=False, print_logs=False, burnout=700):
         print("Phantom Crawler Started")
 
-        self.start_time = time.time()
         self.print_logs = print_logs
         self.thread_count = num_threads
         self.show_logs = show_logs
         self.BURNOUT = burnout
+        self.urls = urls
         
-        self.url = url
+        self.len_urls = len(self.urls)
+        self.start_time = time.time()
+        self.url = urls[0]
         self.threads = []
         self.id_root = {}
-        self.urls = set()
+        self.visited_urls = set()
         self.kill = False
         self.logger = Logger(self.show_logs)
         self.log = self.logger.log
@@ -87,13 +90,13 @@ class Phantom:
         """update the local_urls with global index"""
         self.log("Updating URLs", f"Crawler {id}")
         for url in local_url:
-            self.urls.add(url)
+            self.visited_urls.add(url)
 
-        return self.urls
+        return self.visited_urls
 
     def run(self):
         while len(self.threads) < self.thread_count:
-            self.generate(self.url)
+            self.generate(self.urls[random.randint(0, self.len_urls-1)])
 
         for thread in self.threads:    
             thread.start()
@@ -142,7 +145,6 @@ class Phantom:
         self.id_root.clear()
         print("Phantom Crawler Ended")
 
-
 class Parser:
     def __init__(self, show_logs):
         self.show_logs = show_logs
@@ -170,30 +172,6 @@ class Parser:
         links = [urljoin(url, link.get('href')) for link in soup.find_all('a')]
 
         return links, words
-
-
-class Logger:
-    def __init__(self, show_logs=False):
-        self.show_logs = show_logs
-        self.logs = []
-
-    def log(self, content, id=None, **kwargs):
-        log_ = f"{time.strftime('%H:%M:%S')} : "
-        if id:
-            log_ += f"{id} : "
-        
-        log_ += f"{content} | {kwargs}"
-
-        self.logs.append(log_)
-        if self.show_logs:
-            print(log_)
-    
-    def save(self):
-        with open("logs.txt", "w") as f:
-            for log in self.logs:
-                f.write(log + "\n")
-        self.log("Logs saved to logs.txt", "Log")
-        self.logs.clear()
 
 class Crawler:
     def __init__(self, url, id):
@@ -269,8 +247,7 @@ class Storage:
         with open(self.filename, 'w') as f:
             json.dump(self.data, f)
 
-phantom = Phantom("https://github.com/AnsahMohammad", 6, show_logs=True, print_logs=True)
+phantom = Phantom(num_threads=8,urls=["https://github.com/AnsahMohammad"], show_logs=True, print_logs=True)
 phantom.run()
 time.sleep(30)
 phantom.stop()
-
