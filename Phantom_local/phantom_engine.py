@@ -5,6 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin
 import json
+from logger import Logger
 
 class Phantom:
     def __init__(self, url, num_threads=1, show_logs=False, print_logs=False, burnout=700):
@@ -169,29 +170,6 @@ class Parser:
         links = [urljoin(url, link.get('href')) for link in soup.find_all('a')]
 
         return links, words
-
-class Logger:
-    def __init__(self, show_logs=False):
-        self.show_logs = show_logs
-        self.logs = []
-
-    def log(self, content, id=None, **kwargs):
-        log_ = f"{time.strftime('%H:%M:%S')} : "
-        if id:
-            log_ += f"{id} : "
-        
-        log_ += f"{content} | {kwargs}"
-
-        self.logs.append(log_)
-        if self.show_logs:
-            print(log_)
-    
-    def save(self):
-        with open("logs.txt", "w") as f:
-            for log in self.logs:
-                f.write(log + "\n")
-        self.log("Logs saved to logs.txt", "Log")
-        self.logs.clear()
 
 class Crawler:
     def __init__(self, url, id):
