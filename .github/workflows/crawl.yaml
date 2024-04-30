@@ -26,6 +26,9 @@ jobs:
         source .env/bin/activate
         python3 -m src.phantom --num_threads 2 --urls "https://github.com/AnsahMohammad" "https://github.com/AnsahMohammad" --sleep 18
 
+        python3 -m nltk.downloader stopwords
+        python3 -m nltk.downloader punkt
+
         python3 -m src.phantom_indexing
 
         echo "Crawling completed"
