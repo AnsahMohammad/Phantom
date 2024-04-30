@@ -1,7 +1,6 @@
 from collections import Counter
 import math
 import json
-import nltk
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
