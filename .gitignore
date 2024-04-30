@@ -163,3 +163,4 @@ cython_debug/
 .vscode/
 logs.txt
 index.json
+indexed.json
