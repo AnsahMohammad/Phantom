@@ -2,6 +2,7 @@ import json
 from collections import Counter
 from logger import Logger
 
+
 class Phantom_Query:
     def __init__(self, filename=None):
 
@@ -10,11 +11,11 @@ class Phantom_Query:
         self.data = {}
         with open(filename, "r") as f:
             self.data = json.load(f)
-        
+
         self.tf = self.data["tf"]
         self.idf = self.data["idf"]
         self.tfidf = self.data["tfidf"]
-        
+
         self.logger = Logger(self.showlogs)
         self.log = self.logger.log
 
@@ -26,7 +27,9 @@ class Phantom_Query:
         query_len = len(query)
         query = [term for term in query if term in self.lookup]
         query_freq = Counter(query)
-        query_tfidf = {term: (query_freq[term]/query_len) * self.idf[term] for term in query}
+        query_tfidf = {
+            term: (query_freq[term] / query_len) * self.idf[term] for term in query
+        }
 
         self.log(f"TF-idf of query : {query_tfidf}", "Query_Engine")
 
@@ -46,4 +49,3 @@ phant = Phantom_Query("indexed.json")
 while True:
     query = input("Enter the query : ")
     print(phant.query(query))
-
