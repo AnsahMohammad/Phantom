@@ -18,8 +18,6 @@ def home():
 def process_input(input_text):
     result = engine.query(input_text, count=20)
     #(doc, score, title)
-    print("results ; \n\n")
-    print(result)
     return result
 
 if __name__ == '__main__':
