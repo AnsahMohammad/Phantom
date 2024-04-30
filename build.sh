@@ -1,10 +1,9 @@
 source .env/bin/activate
 
-cd Phantom
 pip install -r requirements.txt
 clear
 echo "Installation done"
-python3 phantom_indexing.py
+python3 -m src.phantom_indexing
 echo "Phantom Processing done"
 clear
-python3 query_engine.py
+python3 -m src.query_engine

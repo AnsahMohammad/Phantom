@@ -1,6 +1,6 @@
 import json
 from collections import Counter
-from logger import Logger
+from .logger import Logger
 
 
 class Phantom_Query:
@@ -20,6 +20,7 @@ class Phantom_Query:
         self.log = self.logger.log
 
         self.lookup = set(self.idf.keys())
+        self.log("Query Engine Ready", "Query_Engine")
 
     def query(self, query):
         self.log(f"Query recieved : {query}", "Query_Engine")
@@ -39,13 +40,16 @@ class Phantom_Query:
             scores[doc] = score
 
         ranked_docs = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-        self.log(f"Ranked documents : {ranked_docs}", "Query_Engine")
+        self.log(f"Ranked documents : {ranked_docs[:10]}", "Query_Engine")
 
         return ranked_docs
 
+    def run(self):
+        while True:
+            query = input("Enter the query : ")
+            print(self.query(query))
 
-phant = Phantom_Query("indexed.json")
 
-while True:
-    query = input("Enter the query : ")
-    print(phant.query(query))
+if __name__ == "__main__":
+    query_engine = Phantom_Query("src/indexed.json")
+    query_engine.run()

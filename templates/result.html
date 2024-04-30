@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Phantom</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sevillana&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        background-color: rgb(181, 181, 181);
+      }
+
+      .sevillana-regular {
+        font-family: "Sevillana", cursive;
+        color: white;
+        font-weight: 500;
+        font-style: normal;
+        font-size: 3rem;
+      }
+
+      .main {
+        display: flex;
+        align-self: flex-start;
+        height: 10%;
+        width: 100%;
+      }
+
+      h1 {
+        color: white;
+        font-weight: 500;
+        font-style: normal;
+        font-size: 3rem;
+      }
+
+      .Form {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .Search {
+        margin-left: 10%;
+        width: 300px;
+        height: 30px;
+        margin-right: 10px;
+        border-radius: 5px; /* Adjust as needed */
+      }
+
+      .Enter {
+        height: 35px;
+      }
+
+      .result {
+        margin-top: 2%;
+        height: 90%;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main">
+      <h1 class="Home sevillana-regular">Phantom</h1>
+      <form method="POST" action="/" class="Form">
+        <input type="text" name="input_text" class="Search" value="{{ input_text }}" />
+        <input type="submit" value="Search" class="Enter" />
+      </form>
+    </div>
+    <hr />
+    <div class="result">
+        {% for item in result %}
+          <a href="{{ item[0] }}">
+            <h2>{{ item[0] }}</h2>
+          </a>
+        {% endfor %}
+    </div>
+  </body>
+</html>
