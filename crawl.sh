@@ -1,6 +1,5 @@
 python3 -m venv .env
 source .env/bin/activate
 
-cd phantom_crawler
 pip install -r requirements.txt
-python3 phantom_engine.py
+python3 -m src.phantom --num_threads 10 --urls "https://www.geeksforgeeks.org/" "https://stackoverflow.com/questions" --show_logs True --print_logs True --sleep 60
