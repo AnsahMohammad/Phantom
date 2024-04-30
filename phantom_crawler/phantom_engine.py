@@ -3,23 +3,24 @@ import time
 import random
 
 class Phantom:
-    def __init__(self, url, num_threads=1):
+    def __init__(self, url, num_threads=1, show_logs=False, print_logs=False, burnout=700):
         print("Phantom Crawler Started")
 
         self.start_time = time.time()
-        self.BURNOUT = 7
-        self.url = url
+        self.print_logs = print_logs
         self.thread_count = num_threads
+        self.show_logs = show_logs
+        self.BURNOUT = burnout
+        
+        self.url = url
         self.threads = []
-        self.kill = False
-        self.print_logs = True
-        self.show_logs = True
         self.id_root = {}
         self.urls = set()
+        self.kill = False
         self.logger = Logger(self.show_logs)
         self.log = self.logger.log
 
-        self.log("INIT-Phantom Issued", "Phantom")
+        self.log("INIT-Phantom", "Phantom")
 
     def crawler(self, id, url):
         burnout = self.BURNOUT
@@ -36,9 +37,8 @@ class Phantom:
             status += f"Root : {url} \n"
             status += f"Epoch : {epoch} \n"
             status += f"Traversed : {local_urls} \n"
-            status += f"Queue : {queue} \n"
+            status += f"Queue : {queue}"
 
-            print(status)
             self.log(status, f"Crawler {id}")
 
         # while not kill and time.time() - self.start_time < burnout:
