@@ -1,4 +1,3 @@
-# Parent.py
 import socket
 import threading
 from logger import Logger

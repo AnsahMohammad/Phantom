@@ -2,14 +2,16 @@ import time
 
 
 class Logger:
-    def __init__(self, show_logs=False):
+    def __init__(self, show_logs=False, author = None):
         self.show_logs = show_logs
         self.logs = []
+        self.author = author
 
-    def log(self, content, id=None, **kwargs):
+    def log(self, content, author=None, **kwargs):
+        author = self.author if author is None else author
         log_ = f"{time.strftime('%H:%M:%S')} : "
-        if id:
-            log_ += f"{id} : "
+        if author:
+            log_ += f"{author} : "
 
         log_ += f"{content} | {kwargs}"
 
