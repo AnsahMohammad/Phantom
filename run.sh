@@ -6,6 +6,8 @@ python3 -m src.phantom --num_threads 10 --urls "https://www.geeksforgeeks.org/" 
 
 clear
 echo "Installation done"
+ls
+
 python3 -m src.phantom_indexing
 echo "Phantom Processing done"
 clear
