@@ -2,6 +2,7 @@ import socket
 import threading
 from logger import Logger
 from .phantom_indexing import Parser
+import time
 
 class Child:
     def __init__(self, server_host="0.0.0.0", server_port=9999):
@@ -78,47 +79,68 @@ class Child:
         self.log("close client success")
 
 class Crawler:
-    def __init__(self, url, id):
+    def __init__(self, url, id, burnout=1000):
         self.id = id
         self.url = url
         self.running = True
         self.kill = False
-        self.show_logs = True
         self.traversed = set()
-        self.log = Logger(self.show_logs).log
-        self.parse = Parser().parse
+        self.burnout = burnout
+        self.log = Logger(show_logs=True, author=f"crawler-{id}").log
+        self.local_urls = set()
+        self.traversed = []
+        self.queue = []
+        self.parser = Parser(self.show_logs)
+        self.start_time = time.time()
 
     def status(self):
         self.log("Status requested", f"Crawler {self.id}")
         status = f"Crawler {self.id} \n"
         status += "Status : {self.running} \n"
         status += f"Root : {self.url} \n"
-        status += f"Traversed : {self.traversed} \n"
+        status += f"Traversed : {len(self.traversed)} \n"
+        status += f"in-Queue : {len(self.queue)} \n"
 
         self.log(status, f"Crawler {self.id}")
 
     def crawl(self):
         self.log("Crawling started", f"Crawler {self.id}")
-        queue = []
-        queue.append(self.url)
+        self.queue.append(self.url)
+        epoch = 0
+        while self.queue and self.running:
+            if time.time() - self.start_time > self.burnout:
+                self.log("Burnout", f"Crawler {id}")
+                break
 
-        while queue and self.running and not self.kill:
-            url = queue.pop(0)
+            # if epoch % 100 == 0:
+            #     self.status()
+            #     local_urls = self.update_urls(local_urls, id)
 
-            if url in self.traversed:
-                self.log(f"Already traversed {url}", f"Crawler {self.id}")
+            url = self.queue.pop(0)
+            # clean the url
+            url = self.parser.clean_url(url)
+
+            if url in self.local_urls:
+                self.log("Already scanned", f"Crawler {id}")
                 continue
 
-            self.log(f"Traverse {self.url}", f"Crawler {self.id}")
-            self.traversed.add(self.url)
-
-            neighbours = self.parse(self.url)
-            queue.extend(neighbours)
+            self.local_urls.add(url)
+            self.traversed.append(url)
+            self.log(f"Traversing {url}", f"Crawler {id}")
+            neighbors, content, url, title = self.parser.parse(url)
+            self.store("storage", url, content)
+            self.store("title", url, title)
+            self.queue.extend(neighbors)
+            # self.log(f"Neighbors {neighbors}", f"Crawler {id}")
+            epoch += 1
 
         self.running = False
         self.log("Crawling stopped", f"Crawler {self.id}")
 
-    def kill(self):
+    def store(self,storage, key, val):
+        pass
+
+    def stop(self):
         self.log("Kill issued", f"Crawler {self.id}")
         self.kill = True
         self.status()
