@@ -13,7 +13,7 @@
 
     <style>
       body {
-        background-color: rgb(181, 181, 181);
+        background-color: rgb(25, 25, 25);
       }
 
       .sevillana-regular {
@@ -61,11 +61,18 @@
         height: 90%;
         width: 100%;
       }
+
+      a{
+        color: white;
+      }
+
     </style>
   </head>
   <body>
     <div class="main">
+      <a href="/">
       <h1 class="Home sevillana-regular">Phantom</h1>
+      </a>
       <form method="POST" action="/" class="Form">
         <input type="text" name="input_text" class="Search" value="{{ input_text }}" />
         <input type="submit" value="Search" class="Enter" />

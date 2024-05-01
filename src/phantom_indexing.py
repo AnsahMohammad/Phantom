@@ -78,7 +78,8 @@ class PhantomIndexer:
         return self.tfidf
 
     def save(self):
-        data = {"tfidf": self.tfidf, "idf": self.idf, "tf": self.tf}
+        # data = {"tfidf": self.tfidf, "idf": self.idf, "tf": self.tf}
+        data = {"tfidf": self.tfidf, "idf": self.idf}
         with open("src/indexed.json", "w") as f:
             json.dump(data, f)
 
