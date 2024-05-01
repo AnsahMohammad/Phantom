@@ -19,7 +19,7 @@ class Phantom_Query:
             with open(titles, "r") as f:
                 self.titles = json.load(f)
 
-        self.tf = self.data["tf"]
+        # self.tf = self.data["tf"]
         self.idf = self.data["idf"]
         self.tfidf = self.data["tfidf"]
 
