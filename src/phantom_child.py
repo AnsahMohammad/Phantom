@@ -232,18 +232,8 @@ class Storage:
             json.dump(self.data, f)
 
 
-
-# child = Child(server_port=9999)
-# try:
-#     child.connect()
-# except:
-#     print("could not connect to server")
-
 crawler = Crawler(server_port=9999)
 try:
     crawler.connect()
 except:
     print("Unexpected error occured")
-
-
-
