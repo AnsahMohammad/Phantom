@@ -29,8 +29,8 @@ class Phantom:
         self.kill = False
         self.logger = Logger(self.show_logs)
         self.log = self.logger.log
-        self.storage = Storage()
-        self.title_storage = Storage("src/titles.json")
+        self.storage = Storage("index.json")
+        self.title_storage = Storage("titles.json")
 
         self.log("INIT-Phantom", "Phantom")
 
@@ -195,71 +195,8 @@ class Parser:
         title = soup.title.string
         return (title, cleaned_url)
 
-
-class Crawler:
-    def __init__(self, url, id):
-        self.id = id
-        self.url = url
-        self.running = True
-        self.kill = False
-        self.show_logs = True
-        self.traversed = set()
-        self.log = Logger(self.show_logs).log
-        self.parse = Parser().parse
-
-    def status(self):
-        self.log("Status requested", f"Crawler {self.id}")
-        status = f"Crawler {self.id} \n"
-        status += "Status : {self.running} \n"
-        status += f"Root : {self.url} \n"
-        status += f"Traversed : {self.traversed} \n"
-
-        print(status)
-        self.log(status, f"Crawler {self.id}")
-
-    def crawl(self):
-        self.log("Crawling started", f"Crawler {self.id}")
-        queue = []
-        queue.append(self.url)
-
-        while queue and self.running and not self.kill:
-            url = queue.pop(0)
-
-            if url in self.traversed:
-                self.log(f"Already traversed {url}", f"Crawler {self.id}")
-                continue
-
-            self.log(f"Traverse {self.url}", f"Crawler {self.id}")
-            self.traversed.add(self.url)
-
-            neighbours = self.parse(self.url)
-            queue.extend(neighbours)
-
-        self.running = False
-        self.log("Crawling stopped", f"Crawler {self.id}")
-
-    def kill(self):
-        self.log("Kill issued", f"Crawler {self.id}")
-        self.kill = True
-        self.status()
-
-        self.traversed.clear()
-        self.log("Crawler killed", f"Crawler {self.id}")
-
-    def skip(self):
-        pass
-
-    def pause(self):
-        self.log("Pause issued", f"Crawler {self.id}")
-        self.running = False
-
-    def resume(self):
-        self.log("Resume issued", f"Crawler {self.id}")
-        self.running = True
-
-
 class Storage:
-    def __init__(self, filename="src/index.json"):
+    def __init__(self, filename="index.json"):
         self.filename = filename
         self.data = {}
 

@@ -13,9 +13,12 @@ from .logger import Logger
 
 
 class PhantomIndexer:
-    def __init__(self, filename) -> None:
+    def __init__(self, filename="index.json", out="indexed.json") -> None:
+        self.out_file = out
+        self.in_file = filename
+
         self.data = {}
-        with open(filename, "r") as f:
+        with open(self.in_file, "r") as f:
             self.data = json.load(f)
 
         self.documents = len(self.data.keys())
@@ -80,13 +83,13 @@ class PhantomIndexer:
     def save(self):
         # data = {"tfidf": self.tfidf, "idf": self.idf, "tf": self.tf}
         data = {"tfidf": self.tfidf, "idf": self.idf}
-        with open("src/indexed.json", "w") as f:
+        with open(self.out_file, "w") as f:
             json.dump(data, f)
 
         self.log("Data Saved", "Phantom-Indexer")
 
 
-processor = PhantomIndexer("src/index.json")
+processor = PhantomIndexer("index.json")
 processor.process()
 processor.save()
 print("Indexing completed!")
