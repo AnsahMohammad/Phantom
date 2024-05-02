@@ -180,6 +180,7 @@ class Crawler:
         self.index_storage.save()
         self.title_storage.save()
         self.log("Data stored", f"Crawler {self.id}")
+        self.send("store,0".encode())
 
     def stop(self):
         self.log("Kill issued", f"Crawler {self.id}")

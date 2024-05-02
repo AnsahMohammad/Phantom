@@ -1,6 +1,8 @@
 import socket
 import threading
-from logger import Logger
+from .logger import Logger
+import os
+import json
 
 # sudo lsof -ti :9999 | xargs --no-run-if-empty kill
 
@@ -227,6 +229,8 @@ class Server:
                     site = input("Enter the site : ")
                     node = int(input("Enter the node id : "))
                     self._set_up(node, site)
+                elif command == "merge":
+                    self.merge()
                 else:
                     print("Invalid command")
             
@@ -235,6 +239,33 @@ class Server:
         except:
             print("Error occured")
             self.stop()
+
+    def merge(self):
+        index_data = []
+        titles_data = []
+        files_to_delete = []
+        self.log("merging the data", "<merger>")
+        for filename in os.listdir('.'):
+            if filename.startswith('index'):
+                with open(filename, 'r') as f:
+                    index_data.extend(json.load(f))
+                files_to_delete.append(filename)
+            elif filename.startswith('title'):
+                with open(filename, 'r') as f:
+                    titles_data.extend(json.load(f))
+                files_to_delete.append(filename)
+
+        self.log("merging done", "<merger>")
+        with open('index.json', 'w') as f:
+            json.dump(index_data, f)
+        with open('titles.json', 'w') as f:
+            json.dump(titles_data, f)
+        self.log("merged data saved", "<merger>")
+
+        # Delete the files
+        for filename in files_to_delete:
+            os.remove(filename)
+        self.log("old files deleted", "<merger>")
 
     def stop(self):
         print(self.nodes)
