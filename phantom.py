@@ -3,7 +3,7 @@ from src.query_engine import Phantom_Query
 from src.phantom_engine import Parser
 
 app = Flask(__name__)
-engine = Phantom_Query("src/indexed.json", titles="src/titles.json")
+engine = Phantom_Query("indexed.json", titles="titles.json")
 parser = Parser()
 
 @app.route('/', methods=['GET', 'POST'])
