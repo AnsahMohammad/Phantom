@@ -5,83 +5,6 @@ from .phantom_engine import Parser
 import time
 import json
 
-# class Child:
-#     def __init__(self, server_host="0.0.0.0", server_port=9999):
-#         self.server_host = server_host
-#         self.server_port = server_port
-
-#         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#         self.running = False
-#         self.thread = None
-
-#         self.logger = Logger(show_logs=True, author="Ph-Child")
-#         self.log  = self.logger.log
-
-#         self.log(f"Child initialized to {self.server_host}:{self.server_port}")
-
-#     def connect(self):
-#         self.running = True
-#         self.client.connect((self.server_host, self.server_port))
-#         self.log("connected to server", "<connect>")
-#         self.thread = threading.Thread(target=self.listen_to_server)
-#         self.thread.start()
-#         self.log("thread started", "<connect>")
-
-#         while self.running:
-#             command = input("Enter command: ")
-#             if command == "stop":
-#                 break
-#             elif command == "send":
-#                 message = input("Enter message: ")
-#                 self.send(message)
-#             elif command == "run":
-#                 self.running = not self.running
-#                 self.status()
-#             else:
-#                 print("Invalid command")
-
-#         self.log("closing connection", "<connect>")        
-#         self.close()
-
-#     def status(self):
-#         self.log(f"status : {self.running}")
-#         message = "status,"+str(int(self.running))
-#         self.client.send(message.encode())
-#         self.log("Status uploaded")
-
-#     def listen_to_server(self):
-#         self.log("Listening to server")
-#         self.client.settimeout(1)
-#         while self.running:
-#             try:
-#                 response = self.client.recv(1024)
-#                 self.log(f"Received: {response}")
-#                 if response == b"status":
-#                     self.status()
-#                 if response == b"stop":
-#                     self.log("close requested from server")
-#                     break
-#             except socket.timeout:
-#                 continue
-        
-#         self.running = False
-#         self.log("waiting to be closed")
-
-#     def send(self, message):
-#         message = str(message).encode()
-#         self.client.send(message)
-#         self.log(f"sent {message}")
-
-#     def close(self):
-#         self.log("closing connection...")
-#         self.running = False
-#         if self.thread is not None:
-#             self.thread.join()
-        
-#         self.send("close,0")
-#         self.client.close()
-#         self.log("close client success")
-
 class Crawler:
     def __init__(self, server_host="0.0.0.0", server_port=9999):
         self.server_host = server_host
@@ -154,6 +77,8 @@ class Crawler:
                     self.setup(response)
                 elif action == "status":
                     self.status()
+                elif action == "append":
+                    self.add_queue(response)
                 elif action == "restart":
                     self.crawling = False
                     self.initialize()
@@ -191,6 +116,15 @@ class Crawler:
         self.log("Setup done", f"Crawler {self.id}")
         self.status()
 
+    def add_queue(self, response):
+        # add url to the queue
+        data = response.split(",")
+        if len(data) > 1:
+            self.queue.extend(data[1:])
+
+        self.log(f"queue extended by {len(data)-1}", f"Crawler {self.id}")
+        self.status()
+
     def initialize(self):
         self.local_urls = set()
         self.traversed = []
@@ -219,21 +153,24 @@ class Crawler:
                 self.status()
                 self.store()
 
-            url = self.queue.pop(0)
-            url = self.parser.clean_url(url)
+            try:
+                url = self.queue.pop(0)
+                url = self.parser.clean_url(url)
 
-            if url in self.local_urls:
-                self.log("Already scanned", f"Crawl {id}")
+                if url in self.local_urls:
+                    self.log("Already scanned", f"Crawl {id}")
+                    continue
+
+                self.local_urls.add(url)
+                self.traversed.append(url)
+                self.log(f"Traversing {url}", f"Crawl {id}")
+                neighbors, content, url, title = self.parser.parse(url)
+                self.index_storage.add(url, content)
+                self.title_storage.add(url, title)
+                self.queue.extend(neighbors)
+                epoch += 1
+            except:
                 continue
-
-            self.local_urls.add(url)
-            self.traversed.append(url)
-            self.log(f"Traversing {url}", f"Crawl {id}")
-            neighbors, content, url, title = self.parser.parse(url)
-            self.index_storage.add(url, content)
-            self.title_storage.add(url, title)
-            self.queue.extend(neighbors)
-            epoch += 1
 
         self.running = False
         self.crawling = False
@@ -248,6 +185,9 @@ class Crawler:
         self.log("Kill issued", f"Crawler {self.id}")
         self.kill = True
         self.status()
+
+        self.store()
+        self.log("Data stored", f"Crawler {self.id}")
 
         self.traversed.clear()
         self.log("Crawler killed", f"Crawler {self.id}")
@@ -278,14 +218,6 @@ class Crawler:
     def skip(self):
         pass
 
-    def pause(self):
-        self.log("Pause issued", f"Crawler {self.id}")
-        self.running = False
-
-    def resume(self):
-        self.log("Resume issued", f"Crawler {self.id}")
-        self.running = True
-
 class Storage:
     def __init__(self, filename):
         self.filename = filename
@@ -306,7 +238,7 @@ class Storage:
 # except:
 #     print("could not connect to server")
 
-crawler = Crawler(server_port=9999)
+crawler = Crawler(server_port=9998)
 try:
     crawler.connect()
 except:
