@@ -29,8 +29,8 @@ class Phantom:
         self.kill = False
         self.logger = Logger(self.show_logs)
         self.log = self.logger.log
-        self.storage = Storage()
-        self.title_storage = Storage("src/titles.json")
+        self.storage = Storage("index.json")
+        self.title_storage = Storage("titles.json")
 
         self.log("INIT-Phantom", "Phantom")
 
@@ -259,7 +259,7 @@ class Crawler:
 
 
 class Storage:
-    def __init__(self, filename="src/index.json"):
+    def __init__(self, filename="index.json"):
         self.filename = filename
         self.data = {}
 
