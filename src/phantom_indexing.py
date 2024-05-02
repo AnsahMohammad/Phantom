@@ -86,7 +86,7 @@ class PhantomIndexer:
         self.log("Data Saved", "Phantom-Indexer")
 
 
-processor = PhantomIndexer("src/index.json")
+processor = PhantomIndexer("index.json")
 processor.process()
 processor.save()
 print("Indexing completed!")

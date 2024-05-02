@@ -40,7 +40,6 @@ class Server:
             if action == "status":
                 self.log(f"{raddr[1]} responded status", "<handle_client>")
                 self.statuses[raddr[1]] = request[1:]
-                break
             else:
                 client_socket.send(b"ACK!")
 
@@ -241,18 +240,20 @@ class Server:
             self.stop()
 
     def merge(self):
-        index_data = []
-        titles_data = []
+        index_data = {}
+        titles_data = {}
         files_to_delete = []
         self.log("merging the data", "<merger>")
         for filename in os.listdir('.'):
             if filename.startswith('index'):
                 with open(filename, 'r') as f:
-                    index_data.extend(json.load(f))
+                    data = json.load(f)
+                    index_data.update(data)
                 files_to_delete.append(filename)
             elif filename.startswith('title'):
                 with open(filename, 'r') as f:
-                    titles_data.extend(json.load(f))
+                    data = json.load(f)
+                    titles_data.update(data)
                 files_to_delete.append(filename)
 
         self.log("merging done", "<merger>")
@@ -272,6 +273,9 @@ class Server:
         self.running = False
         self.log("running => false", "<stop>")
 
+        for node in self.nodes:
+            self.send_message("stop", node)
+
         if self.connection:
             self.log("stopping connection", "<stop>")
             self.connection.join()
@@ -284,5 +288,5 @@ class Server:
         
         self.log("service stopped")
 
-server = Server(port=9998)
+server = Server(port=9999)
 server.start()

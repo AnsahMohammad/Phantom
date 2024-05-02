@@ -239,7 +239,7 @@ class Storage:
 # except:
 #     print("could not connect to server")
 
-crawler = Crawler(server_port=9998)
+crawler = Crawler(server_port=9999)
 try:
     crawler.connect()
 except:
