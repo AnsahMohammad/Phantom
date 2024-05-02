@@ -54,7 +54,11 @@ class Server:
     def send_message(self, message, address):
         self.log(f"Sending message to {address}")
         index = self.nodes.index(address)
-        self.clients[index].send(message.encode())
+        try:
+            self.clients[index].send(message.encode())
+        except:
+            self.log("Error occured while sending message")
+            self._close_client(index)
     
     def _broadcast(self, message):
         self.log(f"broadcasting message : {message}")
@@ -87,26 +91,35 @@ class Server:
         self.log("server loop exit, waiting for closing", "<run>")
 
     def start(self):
-        self.running = True
-        self.connection  = threading.Thread(target=self.run)
-        self.log("Starting the connection ", "<start>")
-        self.connection.start()
+        try:
+                
+            self.running = True
+            self.connection  = threading.Thread(target=self.run)
+            self.log("Starting the connection ", "<start>")
+            self.connection.start()
 
-        while True:
-            command = input("Enter the command : ")
-            if command == "status":
-                self.status()
-            elif command == "broadcast":
-                msg = input("Enter the broadcast msg : ")
-                self._broadcast(msg)
-            elif command == "stop":
-                break
-            else:
-                print("Invalid command")
-        
-        print("server stop issued", "<start>")
-        self.stop()
-        
+            while True:
+                command = input("Enter the command : ")
+                if command == "status":
+                    self.status()
+                elif command == "broadcast":
+                    msg = input("Enter the broadcast msg : ")
+                    self._broadcast(msg)
+                elif command == "send":
+                    print("Nodes : ", self.nodes)
+                    node = int(input("Enter the id of node : "))
+                    msg = input("Enter the message : ")
+                    self.send_message(msg, node)
+                elif command == "stop":
+                    break
+                else:
+                    print("Invalid command")
+            
+            print("server stop issued", "<start>")
+            self.stop()
+        except:
+            print("Error occured")
+            self.stop()
 
     def stop(self):
         print(self.nodes)
@@ -126,8 +139,4 @@ class Server:
         self.log("service stopped")
 
 server = Server(port=9999)
-try:
-    server.start()
-except:
-    print("Error occured!, closing the server")
-    server.stop()
+server.start()
