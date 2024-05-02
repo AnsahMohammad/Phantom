@@ -8,7 +8,7 @@ import json
 
 
 class Server:
-    def __init__(self, host="0.0.0.0", port=9999, clients = 5, burnout=1000):
+    def __init__(self, host="0.0.0.0", port=9999, clients=5, burnout=1000):
         self.host = host
         self.port = port
         self.num_clients = clients
@@ -31,7 +31,7 @@ class Server:
             self.log(f"{raddr[1]}: {request}", "<handle_client>")
 
             request = request.decode().split(",")
-            
+
             action = request[0]
             if action == "close":
                 self.log(f"{raddr[1]} request closure", "<handle_client>")
@@ -65,7 +65,7 @@ class Server:
         for node in self.nodes:
             self.log(f"Requesting status from {node}")
             self.send_message("status", node)
-    
+
     def send_message(self, message, address):
         self.log(f"Sending message to {address}")
         index = self.nodes.index(address)
@@ -74,15 +74,14 @@ class Server:
         except:
             self.log("Error occured while sending message")
             self._close_client(address)
-    
+
     def _broadcast(self, message):
         self.log(f"broadcasting message : {message}")
-        
+
         for client in self.clients:
             client.send(message.encode())
-    
-    
-    def assign_sites(self, remove_exist = True):
+
+    def assign_sites(self, remove_exist=True):
         if remove_exist:
             count = 0
             if len(self.sites) < len(self.nodes):
@@ -95,9 +94,11 @@ class Server:
                 for node in self.nodes:
                     self._set_up(node, self.sites[count])
                     count += 1
-                
+
                 while count < len(self.sites):
-                    self._add_site(self.nodes[count % len(self.nodes)], [self.sites[count]])
+                    self._add_site(
+                        self.nodes[count % len(self.nodes)], [self.sites[count]]
+                    )
                     count += 1
         else:
             count = 0
@@ -111,7 +112,7 @@ class Server:
                 else:
                     self._add_site(node, [self.sites[count]])
                     count += 1
-    
+
     def generate(self):
         self.log("Generating the sites", "generator")
         if self.CLI_MODE:
@@ -121,9 +122,9 @@ class Server:
             self.log("No sites present", "generator")
             return
         self.assign_sites()
-        
+
         self.log("Generated the sites", "generator")
-        # now crawling them, 
+        # now crawling them,
 
         for node in self.nodes:
             self._run(node)
@@ -147,7 +148,7 @@ class Server:
         client.send(message.encode())
 
         self.log(f"set-up for {address}")
-    
+
     def _add_site(self, address, sites):
         index = self.nodes.index(address)
         client = self.clients[index]
@@ -162,8 +163,6 @@ class Server:
         client.send(message.encode())
 
         self.log(f"Add {len(sites)} sites for {address}", "Master-Appender")
-
-
 
     def run(self):
         self.log("Starting the server", "<run>")
@@ -181,19 +180,21 @@ class Server:
                 self.nodes.append(addr[1])
                 self.clients.append(client)
                 self.log(f"Accepted connection from: {addr[0]}:{addr[1]}")
-                client_handler = threading.Thread(target=self.handle_client, args=(client,))
+                client_handler = threading.Thread(
+                    target=self.handle_client, args=(client,)
+                )
                 client_handler.start()
             except socket.timeout:
                 # self.log("Timeout", "<run>")
                 continue
-        
+
         self.log("server loop exit, waiting for closing", "<run>")
 
     def start(self):
         try:
-                
+
             self.running = True
-            self.connection  = threading.Thread(target=self.run)
+            self.connection = threading.Thread(target=self.run)
             self.log("Starting the connection ", "<start>")
             self.connection.start()
 
@@ -220,7 +221,7 @@ class Server:
                 elif command == "assign":
                     self.assign_sites(False)
                 elif command == "add":
-                    print("nodes : ",self.nodes)
+                    print("nodes : ", self.nodes)
                     site = input("Enter the sites saperated by comma : ").split(",")
                     node = int(input("Enter the node id : "))
                     self._add_site(node, [site])
@@ -232,7 +233,7 @@ class Server:
                     self.merge()
                 else:
                     print("Invalid command")
-            
+
             print("server stop issued", "<start>")
             self.stop()
         except:
@@ -244,22 +245,22 @@ class Server:
         titles_data = {}
         files_to_delete = []
         self.log("merging the data", "<merger>")
-        for filename in os.listdir('.'):
-            if filename.startswith('index'):
-                with open(filename, 'r') as f:
+        for filename in os.listdir("."):
+            if filename.startswith("index"):
+                with open(filename, "r") as f:
                     data = json.load(f)
                     index_data.update(data)
                 files_to_delete.append(filename)
-            elif filename.startswith('title'):
-                with open(filename, 'r') as f:
+            elif filename.startswith("title"):
+                with open(filename, "r") as f:
                     data = json.load(f)
                     titles_data.update(data)
                 files_to_delete.append(filename)
 
         self.log("merging done", "<merger>")
-        with open('index.json', 'w') as f:
+        with open("index.json", "w") as f:
             json.dump(index_data, f)
-        with open('titles.json', 'w') as f:
+        with open("titles.json", "w") as f:
             json.dump(titles_data, f)
         self.log("merged data saved", "<merger>")
 
@@ -280,13 +281,14 @@ class Server:
             self.log("stopping connection", "<stop>")
             self.connection.join()
             self.log("connection closed", "<stop>")
-        
+
         if self.server:
             self.log("server closing", "<stop>")
             self.server.close()
             self.log("server closed", "<stop>")
-        
+
         self.log("service stopped")
+
 
 server = Server(port=9999)
 server.start()

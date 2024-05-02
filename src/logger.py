@@ -2,7 +2,7 @@ import time
 
 
 class Logger:
-    def __init__(self, show_logs=False, author = None):
+    def __init__(self, show_logs=False, author=None):
         self.show_logs = show_logs
         self.logs = []
         self.author = author

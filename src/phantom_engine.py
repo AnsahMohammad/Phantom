@@ -195,6 +195,7 @@ class Parser:
         title = soup.title.string
         return (title, cleaned_url)
 
+
 class Storage:
     def __init__(self, filename="index.json"):
         self.filename = filename

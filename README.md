@@ -1,5 +1,12 @@
 # Phantom Search Engine
 
+[![Python](https://img.shields.io/badge/Python-3.8%20%7C%203.9%20%7C%203.10-informational)](https://www.python.org/)
+[![License](https://img.shields.io/github/license/qiskit-community/quantum-prototype-template?label=License)](https://github.com/IceKhan13/purplecaffeine/blob/main/LICENSE)
+[![Code style: Black](https://img.shields.io/badge/Code%20style-Black-000.svg)](https://github.com/psf/black)
+[![Unit Tests](https://github.com/AnsahMohammad/Phantom/actions/workflows/crawl.yaml/badge.svg?branch=main)](https://github.com/AnsahMohammad/Phantom/actions/workflows/crawl.yaml)
+![Deploy Status](https://img.shields.io/website?down_color=red&down_message=offline&up_color=green&up_message=online&url=https%3A%2F%2Fphantom-f6le.onrender.com)
+
+
 Phantom Search Engine is a lightweight, distributed web search engine designed to provide fast and relevant search results.
 
 ## Features
@@ -59,6 +66,8 @@ This script performs the following actions:
 
 1. Run the `crawl.sh` file by updating necessary parameters
 2. Run the `local_search.sh` to index the crawled sites and run the query engine on it
+
+> **Note:** Read the [documentation here](./DOCUMENTATION.md)
 
 ## Contributing
 We welcome contributions! Please see our CONTRIBUTING.md for details on how to contribute to this project.

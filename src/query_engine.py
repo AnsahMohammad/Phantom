@@ -4,7 +4,7 @@ from .logger import Logger
 
 
 class Phantom_Query:
-    def __init__(self, filename="src/indexed.json", titles = None):
+    def __init__(self, filename="src/indexed.json", titles=None):
 
         self.showlogs = True
         self.title_table = False
@@ -29,7 +29,7 @@ class Phantom_Query:
         self.lookup = set(self.idf.keys())
         self.log("Query Engine Ready", "Query_Engine")
 
-    def query(self, query, count = 10):
+    def query(self, query, count=10):
         self.log(f"Query recieved : {query}", "Query_Engine")
         query = query.split()
         query_len = len(query)

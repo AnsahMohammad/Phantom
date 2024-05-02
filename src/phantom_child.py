@@ -5,6 +5,7 @@ from .phantom_engine import Parser
 import time
 import json
 
+
 class Crawler:
     def __init__(self, server_host="0.0.0.0", server_port=9999):
         self.server_host = server_host
@@ -30,14 +31,13 @@ class Crawler:
         self.id = l_address[1]
 
         self.initialize()
-        
+
         self.log("connected to server", "<connect>")
         self.log("id assigned", f"Crawler {self.id}")
 
-
         self.thread = threading.Thread(target=self.listen_to_server)
         self.thread.start()
-        self.threads.append(self.thread) # adding to the thread list
+        self.threads.append(self.thread)  # adding to the thread list
         self.log("thread started", "<connect>")
 
         while not self.kill:
@@ -59,7 +59,7 @@ class Crawler:
             else:
                 print("Invalid command")
 
-        self.log("closing connection", "<connect>")        
+        self.log("closing connection", "<connect>")
         self.stop()
 
     def listen_to_server(self):
@@ -99,10 +99,10 @@ class Crawler:
                     break
             except socket.timeout:
                 continue
-        
+
         self.running = False
         self.log("waiting to be closed")
-    
+
     def setup(self, response):
         # recieved in format setup,url,burnout
         data = response.split(",")
@@ -195,12 +195,12 @@ class Crawler:
 
         self.log("closing connection...")
         self.running = False
-        
+
         for thread in self.threads:
             thread.join()
-        
+
         self.log("threads closed", f"Crawler {self.id}")
-        
+
         self.send("close,0")
         self.client.close()
         self.log("close client success")
@@ -209,7 +209,7 @@ class Crawler:
         message = str(message).encode()
         self.client.send(message)
         self.log(f"sent {message}")
-    
+
     def status(self):
         self.log("Status requested", f"Crawler {self.id}")
         status = f"status,ID-{self.id},URL-{self.url},RUNNING-{self.running},TRAVERSED-{len(self.traversed)},QUEUE-{len(self.queue)}"
@@ -218,6 +218,7 @@ class Crawler:
 
     def skip(self):
         pass
+
 
 class Storage:
     def __init__(self, filename):
