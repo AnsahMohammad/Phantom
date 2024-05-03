@@ -29,8 +29,8 @@ Phantom Search Engine is a lightweight, distributed web search engine designed t
 1. Clone the repository:
 
 ```sh
-git clone https://github.com/yourusername/phantom-search.git
-cd phantom-search
+git clone https://github.com/AnsahMohammad/Phantom.git
+cd Phantom
 ```
 
 2. Create a virtual environment and activate it:
@@ -42,6 +42,16 @@ source .env/bin/activate
 3. Install the necessary dependencies:
 ```sh
 pip install -r requirements.txt
+```
+
+4. Build the files:
+```sh
+./build.sh
+```
+
+5. Open the Search Engine GUI
+```python
+python phantom.py
 ```
 
 ## Building from Source
