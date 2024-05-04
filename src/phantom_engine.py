@@ -243,7 +243,6 @@ class Storage:
             print("Visited URLs fetched from remote DB : ",len(visited))
 
         return visited
-        
 
     def save(self):
         if self.remote_db:

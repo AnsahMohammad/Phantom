@@ -6,7 +6,8 @@ from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 import string
 from .logger import Logger
-
+import os
+from supabase import create_client, Client
 
 # nltk.download('punkt')
 # nltk.download('stopwords')
@@ -17,18 +18,22 @@ class PhantomIndexer:
         self.out_file = out
         self.in_file = filename
 
+        self.showlogs = True
+        self.remote_db = self.check_remote()
+        self.logger = Logger(self.showlogs)
+        self.log = self.logger.log
+
         self.data = {}
-        with open(self.in_file, "r") as f:
-            self.data = json.load(f)
+        if not self.load():
+            # if remote cause error, load from local
+            self.remote_db = False
+            self.load()
 
         self.documents = len(self.data.keys())
         self.tf = {}
         self.idf = {}
         self.tfidf = {}
-        self.showlogs = True
 
-        self.logger = Logger(self.showlogs)
-        self.log = self.logger.log
 
     def calculate_tf(self):
         self.log("Calculating TF", "Phantom-Indexer")
@@ -79,6 +84,44 @@ class PhantomIndexer:
             )
 
         return self.tfidf
+
+    def check_remote(self):
+        remote_db = True
+
+        self.db_url = os.environ.get("SUPABASE_URL", None)
+        self.db_key = os.environ.get("SUPABASE_KEY", None)
+        try:
+            self.supabase = create_client(self.db_url, self.db_key)
+            if not self.supabase:
+                print("Failed to connect to Supabase")
+                remote_db = False
+        except Exception as e:
+            print(f"Error while creating Supabase client: {e}")
+            remote_db = False
+        
+        print("Remote database : ", remote_db)
+        print("DB Ready")
+        return remote_db
+
+    def load(self):
+        # load the index.json
+        if self.remote_db:
+            try:
+                self.log("Fetching data from remote DB")
+                response = self.supabase.table("index").select("url", "content").execute()
+                for record in response.data:
+                    self.data[record["url"]] = json.loads(record["content"])
+                self.log(f"Data fetched from remote DB: {len(self.data)}", "Phantom-Indexer-Loader")
+            except Exception as e:
+                print(f"\nError fetching data from index table: {e}\n")
+                return False
+            return True
+        
+        else:
+            self.log("Loading data from local file")
+            with open(self.in_file, "r") as f:
+                self.data = json.load(f)
+        
 
     def save(self):
         # data = {"tfidf": self.tfidf, "idf": self.idf, "tf": self.tf}
