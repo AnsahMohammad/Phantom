@@ -6,7 +6,7 @@ pip install -r requirements.txt
 
 # Check if SUPABASE_URL and SUPABASE_KEY are set
 if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ]; then
-    python3 -m src.phantom --num_threads 10 --urls "https://www.geeksforgeeks.org/" "https://stackoverflow.com/questions" "https://en.wikipedia.org/wiki/India" "https://developers.cloudflare.com/" "https://bloggingidol.com/best-programming-blogs/" --show_logs True --print_logs True --sleep 240
+    python3 -m src.phantom --num_threads 10 --urls "https://www.geeksforgeeks.org/" "https://en.wikipedia.org/wiki/India" "https://developers.cloudflare.com/" "https://bloggingidol.com/best-programming-blogs/" "https://www.hindustantimes.com/india-news/" "https://www.bbc.com/news" --show_logs True --print_logs True --sleep 240
 fi
 
 clear
