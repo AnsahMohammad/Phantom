@@ -26,19 +26,20 @@ class Phantom:
         self.url = urls[0]
         self.threads = []
         self.id_root = {}
-        self.visited_urls = set()
+
+        self.storage = Storage("index")
+        self.visited_urls = self.storage.fetch_visited()
+
         self.kill = False
         self.logger = Logger(self.show_logs)
         self.log = self.logger.log
-        self.storage = Storage("index.json")
-        self.title_storage = Storage("titles.json")
 
         self.log("INIT-Phantom", "Phantom")
 
     def crawler(self, id, url):
         burnout = self.BURNOUT
         start_time = time.time()
-        local_urls = set()
+        local_urls = set(self.visited_urls)
         traversed = []
         queue = []
         queue.append(url)
@@ -76,8 +77,7 @@ class Phantom:
             traversed.append(url)
             self.log(f"Traversing {url}", f"Crawler {id}")
             neighbors, content, url, title = parser.parse(url)
-            self.storage.add(url, content)
-            self.title_storage.add(url, title)
+            self.storage.add(url, content, title)
             queue.extend(neighbors)
             # self.log(f"Neighbors {neighbors}", f"Crawler {id}")
             epoch += 1
@@ -145,8 +145,6 @@ class Phantom:
 
         self.storage.save()
         self.log("Saved the indices", "Phantom")
-        self.title_storage.save()
-        self.log("Saved the titles", "Phantom")
 
         if self.print_logs:
             self.logger.save()
@@ -198,12 +196,14 @@ class Parser:
 
 
 class Storage:
-    def __init__(self, filename="index.json"):
-        self.filename = filename
+    def __init__(self, table_name="index", resume=False):
+        self.table_name = table_name
         self.data = {}
 
-        # remote client set-up
+        self.resume = resume
         self.remote_db = True
+
+        # remote client set-up
         self.url = os.environ.get("SUPABASE_URL", None)
         self.key = os.environ.get("SUPABASE_KEY", None)
         try:
@@ -215,24 +215,38 @@ class Storage:
             print(f"Error while creating Supabase client: {e}")
             self.remote_db = False
         
+        print("Remote database : ", self.remote_db)
         print("DB Ready")
 
-    def add(self, key, value):
+    def add(self, key, value, title):
         if self.remote_db:
             try:
-                data, count = self.supabase.table('index').insert({"url": key, "content": json.dumps(value)}).execute()
+                data, count = self.supabase.table(self.table_name).insert({"url": key, "content": json.dumps(value), "title": title}).execute()
             except Exception as e:
-                print(f"\nError inserting record into 'index' table: {e}\n")
+                print(f"\nError inserting record into {self.table_name} table: {e}\n")
                 return False
             return True
 
-        print("value is of length : ", len(value))            
+        # print("value is of length : ", len(value))            
         self.data[key] = value
+
+    def fetch_visited(self):
+        visited = set()
+        if self.resume and self.remote_db:
+            # if resume the execution and remote db available
+            response = self.supabase.table('index').select('url').execute()
+            for row in response['data']:
+                visited.add(row['url'])
+            print("Visited URLs fetched from remote DB : ",len(visited))
+
+        return visited
+        
 
     def save(self):
         if self.remote_db:
             return
-        with open(self.filename, "w") as f:
+        table_name = self.table_name + ".json"
+        with open(table_name, "w") as f:
             json.dump(self.data, f)
 
 
