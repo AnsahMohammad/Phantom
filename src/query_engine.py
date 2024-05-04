@@ -1,30 +1,36 @@
 import json
 from collections import Counter
 from .logger import Logger
+import os
+from supabase import create_client, Client
+
 
 
 class Phantom_Query:
-    def __init__(self, filename="indexed.json", titles=None):
+    def __init__(self, filename="indexed.json", title_path=None):
 
         self.showlogs = True
         self.title_table = False
-
+        self.remote_db = self.check_remote()
+        self.logger = Logger(self.showlogs)
+        self.log = self.logger.log
+        
         self.data = {}
         with open(filename, "r") as f:
             self.data = json.load(f)
 
-        if titles:
+        if title_path or self.remote_db:
+            self.title_path = title_path
             self.title_table = True
             self.titles = {}
-            with open(titles, "r") as f:
-                self.titles = json.load(f)
+            if not self.load_titles():
+                self.remote_db = False
+                self.load_titles()
 
         # self.tf = self.data["tf"]
         self.idf = self.data["idf"]
         self.tfidf = self.data["tfidf"]
 
-        self.logger = Logger(self.showlogs)
-        self.log = self.logger.log
 
         self.lookup = set(self.idf.keys())
         self.log("Query Engine Ready", "Query_Engine")
@@ -60,6 +66,46 @@ class Phantom_Query:
         while True:
             query = input("Enter the query : ")
             print(self.query(query))
+    
+    def check_remote(self):
+        remote_db = True
+
+        self.db_url = os.environ.get("SUPABASE_URL", None)
+        self.db_key = os.environ.get("SUPABASE_KEY", None)
+        try:
+            self.supabase = create_client(self.db_url, self.db_key)
+            if not self.supabase:
+                print("Failed to connect to Supabase")
+                remote_db = False
+        except Exception as e:
+            print(f"Error while creating Supabase client: {e}")
+            remote_db = False
+        
+        print("Remote database : ", remote_db)
+        print("DB Ready")
+        return remote_db
+    
+    def load_titles(self):
+        # load the titles from index.json
+        if self.remote_db:
+            try:
+                self.log("Fetching data from remote DB")
+                response = self.supabase.table("index").select("url", "title").execute()
+                for record in response.data:
+                        self.titles[record["url"]] = record["title"]
+                self.log(f"Data fetched from remote DB: {len(self.titles)}", "Phantom-Indexer-Loader")
+            except Exception as e:
+                print(f"\nError fetching data from index table: {e}\n")
+                return False
+            return True
+
+        else:
+            if not self.title_path:
+                return False
+
+            self.log("Loading data from local file")
+            with open(self.title_path, "r") as f:
+                self.titles = json.load(f)
 
 
 if __name__ == "__main__":

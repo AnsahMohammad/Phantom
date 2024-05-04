@@ -18,7 +18,7 @@ else:
 
 # setting up the query engine
 app = Flask(__name__)
-engine = Phantom_Query("indexed.json", titles="titles.json")
+engine = Phantom_Query("indexed.json", title_path="titles.json")
 parser = Parser()
 
 @app.route("/", methods=["GET"])

@@ -28,7 +28,7 @@ class Phantom:
         self.id_root = {}
 
         self.storage = Storage("index")
-        self.title_storage = Storage("titles")
+        self.title_storage = Storage("titles", remote_db=False)
         self.visited_urls = self.storage.fetch_visited()
 
         self.kill = False
@@ -199,12 +199,12 @@ class Parser:
 
 
 class Storage:
-    def __init__(self, table_name="index", resume=False):
+    def __init__(self, table_name="index", resume=False, remote_db=True):
         self.table_name = table_name
         self.data = {}
 
         self.resume = resume
-        self.remote_db = True
+        self.remote_db = remote_db
 
         # remote client set-up
         self.url = os.environ.get("SUPABASE_URL", None)
