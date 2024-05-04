@@ -28,6 +28,7 @@ class Phantom:
         self.id_root = {}
 
         self.storage = Storage("index")
+        self.title_storage = Storage("titles")
         self.visited_urls = self.storage.fetch_visited()
 
         self.kill = False
@@ -78,6 +79,7 @@ class Phantom:
             self.log(f"Traversing {url}", f"Crawler {id}")
             neighbors, content, url, title = parser.parse(url)
             self.storage.add(url, content, title)
+            self.title_storage.add(url, title)
             queue.extend(neighbors)
             # self.log(f"Neighbors {neighbors}", f"Crawler {id}")
             epoch += 1
@@ -144,6 +146,7 @@ class Phantom:
         self.stats()
 
         self.storage.save()
+        self.title_storage.save()
         self.log("Saved the indices", "Phantom")
 
         if self.print_logs:
@@ -218,7 +221,7 @@ class Storage:
         print("Remote database : ", self.remote_db)
         print("DB Ready")
 
-    def add(self, key, value, title):
+    def add(self, key, value, title=None):
         if self.remote_db:
             try:
                 data, count = self.supabase.table(self.table_name).insert({"url": key, "content": json.dumps(value), "title": title}).execute()
