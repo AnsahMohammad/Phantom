@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin
 import json
 from .logger import Logger
+from collections import deque
 
 
 class Phantom:
@@ -39,7 +40,7 @@ class Phantom:
         start_time = time.time()
         local_urls = set()
         traversed = []
-        queue = []
+        queue = deque()
         queue.append(url)
         parser = Parser(self.show_logs)
         epoch = 1
@@ -63,7 +64,7 @@ class Phantom:
                 status()
                 local_urls = self.update_urls(local_urls, id)
 
-            url = queue.pop(0)
+            url = queue.popleft()
             # clean the url
             url = parser.clean_url(url)
 
