@@ -9,7 +9,7 @@ def main(num_threads, urls, show_logs, print_logs, sleep):
     print("urls: ", urls)
     print("show_logs: ", show_logs)
     print("print_logs: ", print_logs)
-    print("sleep: ", sleep)
+    print("sleep after: ", sleep)
     phantom = Phantom(
         num_threads=num_threads,
         urls=urls,
