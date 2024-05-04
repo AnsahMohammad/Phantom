@@ -160,3 +160,16 @@ The `Phantom_Query` class is used as follows:
 
 The output of the `Phantom_Query` class is a list of tuples, where each tuple contains the document ID, the score, and the title of a document. The list is sorted in descending order of the scores, so the first tuple corresponds to the most relevant document.
 
+
+### Use of remote database
+In this application, `supabase` has been used, inorder to leverage the supabase, user will have to create an account, and create two tables
+
+1. Table **index** with the following fields:
+- url (text)
+- content (json)
+- title (text)
+
+2. Table **query** with the fields
+- query(text)
+
+The query table is used to store the queries to take analyse the queries made
