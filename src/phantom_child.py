@@ -4,7 +4,7 @@ from .logger import Logger
 from .phantom_engine import Parser
 import time
 import json
-
+from collections import deque
 
 class Crawler:
     def __init__(self, server_host="0.0.0.0", server_port=9999):
@@ -128,7 +128,7 @@ class Crawler:
     def initialize(self):
         self.local_urls = set()
         self.traversed = []
-        self.queue = []
+        self.queue = deque()
         self.start_time = time.time()
         self.parser = Parser(show_logs=True)
         self.log = Logger(show_logs=True, author=f"crawler-{self.id}").log
@@ -154,7 +154,7 @@ class Crawler:
                 self.store()
 
             try:
-                url = self.queue.pop(0)
+                url = self.queue.popleft()
                 url = self.parser.clean_url(url)
 
                 if url in self.local_urls:
