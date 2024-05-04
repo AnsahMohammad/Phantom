@@ -6,13 +6,15 @@ from supabase import create_client, Client
 
 # setting up database
 REMOTE_DB = True
-url: str = os.environ.get("SUPABASE_URL")
-key: str = os.environ.get("SUPABASE_KEY")
-supabase: Client = create_client(url, key)
-if not supabase:
-    print("Failed to connect to Supabase")
+url: str = os.environ.get("SUPABASE_URL", None)
+key: str = os.environ.get("SUPABASE_KEY", None)
+try:
+    supabase: Client = create_client(url, key)
+except Exception as e:
+    print(f"Error while creating Supabase client: {e}")
     REMOTE_DB = False
-print("Connected to Supabase")
+else:
+    print("Connected to Supabase")
 
 # setting up the query engine
 app = Flask(__name__)

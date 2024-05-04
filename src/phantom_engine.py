@@ -6,7 +6,8 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin
 import json
 from .logger import Logger
-
+import os
+from supabase import create_client, Client
 
 class Phantom:
     def __init__(
@@ -201,10 +202,36 @@ class Storage:
         self.filename = filename
         self.data = {}
 
+        # remote client set-up
+        self.remote_db = True
+        self.url = os.environ.get("SUPABASE_URL", None)
+        self.key = os.environ.get("SUPABASE_KEY", None)
+        try:
+            self.supabase = create_client(self.url, self.key)
+            if not self.supabase:
+                print("Failed to connect to Supabase")
+                self.remote_db = False
+        except Exception as e:
+            print(f"Error while creating Supabase client: {e}")
+            self.remote_db = False
+        
+        print("DB Ready")
+
     def add(self, key, value):
+        if self.remote_db:
+            try:
+                data, count = self.supabase.table('index').insert({"url": key, "content": json.dumps(value)}).execute()
+            except Exception as e:
+                print(f"\nError inserting record into 'index' table: {e}\n")
+                return False
+            return True
+
+        print("value is of length : ", len(value))            
         self.data[key] = value
 
     def save(self):
+        if self.remote_db:
+            return
         with open(self.filename, "w") as f:
             json.dump(self.data, f)
 
