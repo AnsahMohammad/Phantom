@@ -1,4 +1,4 @@
-name: Crawl Test
+name: Crawler Test
 
 on: [push]
 
