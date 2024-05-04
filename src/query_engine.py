@@ -4,7 +4,7 @@ from .logger import Logger
 
 
 class Phantom_Query:
-    def __init__(self, filename="src/indexed.json", titles=None):
+    def __init__(self, filename="indexed.json", titles=None):
 
         self.showlogs = True
         self.title_table = False
@@ -63,5 +63,5 @@ class Phantom_Query:
 
 
 if __name__ == "__main__":
-    query_engine = Phantom_Query("src/indexed.json")
+    query_engine = Phantom_Query("indexed.json")
     query_engine.run()
