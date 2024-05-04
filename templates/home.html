@@ -68,8 +68,8 @@
   <body>
     <div class="main">
       <h1 class="Home sevillana-regular">Phantom</h1>
-      <form method="POST" action="/" class="Form">
-        <input type="text" name="input_text" class="Search" value="{{ input_text }}" />
+      <form method="GET" action="/" class="Form">
+        <input type="text" name="q" class="Search" placeholder="Search Query" value="{{ input_text }}" />
         <input type="submit" value="Search" class="Enter" />
       </form>
     </div>
