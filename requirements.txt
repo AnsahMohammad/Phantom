@@ -1,5 +1,6 @@
 bs4==0.0.2
 Flask==3.0.3
+gunicorn==22.0.0
 nltk==3.8.1
 requests==2.31.0
-gunicorn==22.0.0
+supabase==2.4.5
