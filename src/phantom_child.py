@@ -6,6 +6,7 @@ import time
 import json
 from collections import deque
 
+
 class Crawler:
     def __init__(self, server_host="0.0.0.0", server_port=9999):
         self.server_host = server_host

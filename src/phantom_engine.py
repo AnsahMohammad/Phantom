@@ -9,6 +9,7 @@ from .utils.logger import Logger
 from .utils.storage import Storage
 from collections import deque
 
+
 class Phantom:
     def __init__(
         self, urls, num_threads=1, show_logs=False, print_logs=False, burnout=700
