@@ -5,7 +5,7 @@ from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 import string
-from .logger import Logger
+from .utils.logger import Logger
 import os
 from supabase import create_client, Client
 
@@ -33,7 +33,6 @@ class PhantomIndexer:
         self.tf = {}
         self.idf = {}
         self.tfidf = {}
-
 
     def calculate_tf(self):
         self.log("Calculating TF", "Phantom-Indexer")
@@ -98,7 +97,7 @@ class PhantomIndexer:
         except Exception as e:
             print(f"Error while creating Supabase client: {e}")
             remote_db = False
-        
+
         print("Remote database : ", remote_db)
         print("DB Ready")
         return remote_db
@@ -108,20 +107,24 @@ class PhantomIndexer:
         if self.remote_db:
             try:
                 self.log("Fetching data from remote DB")
-                response = self.supabase.table("index").select("url", "content").execute()
+                response = (
+                    self.supabase.table("index").select("url", "content").execute()
+                )
                 for record in response.data:
                     self.data[record["url"]] = json.loads(record["content"])
-                self.log(f"Data fetched from remote DB: {len(self.data)}", "Phantom-Indexer-Loader")
+                self.log(
+                    f"Data fetched from remote DB: {len(self.data)}",
+                    "Phantom-Indexer-Loader",
+                )
             except Exception as e:
                 print(f"\nError fetching data from index table: {e}\n")
                 return False
             return True
-        
+
         else:
             self.log("Loading data from local file")
             with open(self.in_file, "r") as f:
                 self.data = json.load(f)
-        
 
     def save(self):
         # data = {"tfidf": self.tfidf, "idf": self.idf, "tf": self.tf}

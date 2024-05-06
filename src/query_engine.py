@@ -1,9 +1,8 @@
 import json
 from collections import Counter
-from .logger import Logger
+from .utils.logger import Logger
 import os
 from supabase import create_client, Client
-
 
 
 class Phantom_Query:
@@ -14,7 +13,7 @@ class Phantom_Query:
         self.remote_db = self.check_remote()
         self.logger = Logger(self.showlogs)
         self.log = self.logger.log
-        
+
         self.data = {}
         with open(filename, "r") as f:
             self.data = json.load(f)
@@ -30,7 +29,6 @@ class Phantom_Query:
         # self.tf = self.data["tf"]
         self.idf = self.data["idf"]
         self.tfidf = self.data["tfidf"]
-
 
         self.lookup = set(self.idf.keys())
         self.log("Query Engine Ready", "Query_Engine")
@@ -66,7 +64,7 @@ class Phantom_Query:
         while True:
             query = input("Enter the query : ")
             print(self.query(query))
-    
+
     def check_remote(self):
         remote_db = True
 
@@ -80,11 +78,11 @@ class Phantom_Query:
         except Exception as e:
             print(f"Error while creating Supabase client: {e}")
             remote_db = False
-        
+
         print("Remote database : ", remote_db)
         print("DB Ready")
         return remote_db
-    
+
     def load_titles(self):
         # load the titles from index.json
         if self.remote_db:
@@ -92,8 +90,11 @@ class Phantom_Query:
                 self.log("Fetching data from remote DB")
                 response = self.supabase.table("index").select("url", "title").execute()
                 for record in response.data:
-                        self.titles[record["url"]] = record["title"]
-                self.log(f"Data fetched from remote DB: {len(self.titles)}", "Phantom-Indexer-Loader")
+                    self.titles[record["url"]] = record["title"]
+                self.log(
+                    f"Data fetched from remote DB: {len(self.titles)}",
+                    "Phantom-Indexer-Loader",
+                )
             except Exception as e:
                 print(f"\nError fetching data from index table: {e}\n")
                 return False
