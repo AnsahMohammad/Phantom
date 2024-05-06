@@ -1,6 +1,6 @@
 import json
 from collections import Counter
-from .logger import Logger
+from .utils.logger import Logger
 import os
 from supabase import create_client, Client
 

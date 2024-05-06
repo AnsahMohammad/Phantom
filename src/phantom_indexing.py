@@ -5,7 +5,7 @@ from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 import string
-from .logger import Logger
+from .utils.logger import Logger
 import os
 from supabase import create_client, Client
 

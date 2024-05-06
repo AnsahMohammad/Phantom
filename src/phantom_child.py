@@ -1,6 +1,6 @@
 import socket
 import threading
-from .logger import Logger
+from .utils.logger import Logger
 from .phantom_engine import Parser
 import time
 import json
