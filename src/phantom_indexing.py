@@ -5,7 +5,7 @@ from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 import string
-from .logger import Logger
+from .utils.logger import Logger
 import os
 from supabase import create_client, Client
 
@@ -33,7 +33,6 @@ class PhantomIndexer:
         self.tf = {}
         self.idf = {}
         self.tfidf = {}
-
 
     def calculate_tf(self):
         self.log("Calculating TF", "Phantom-Indexer")
@@ -98,7 +97,7 @@ class PhantomIndexer:
         except Exception as e:
             print(f"Error while creating Supabase client: {e}")
             remote_db = False
-        
+
         print("Remote database : ", remote_db)
         print("DB Ready")
         return remote_db
@@ -126,11 +125,11 @@ class PhantomIndexer:
                 return False
             return True
 
+
         else:
             self.log("Loading data from local file")
             with open(self.in_file, "r") as f:
                 self.data = json.load(f)
-        
 
     def save(self):
         # data = {"tfidf": self.tfidf, "idf": self.idf, "tf": self.tf}
