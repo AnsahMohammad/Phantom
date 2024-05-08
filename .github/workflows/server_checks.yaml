@@ -15,11 +15,12 @@ jobs:
       with:
         python-version: 3.8
 
-    - name: Install dependencies
+    - name: Install dependencies & build
       run: |
         python -m venv .env
         source .env/bin/activate
         pip install -r requirements.txt
+        bash build.sh 6
       
     - name: Local Flask server Test
       run: |
