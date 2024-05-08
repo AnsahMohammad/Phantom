@@ -1,7 +1,7 @@
 import socket
 import threading
 from ..utils.logger import Logger
-from ..phantom_engine import Parser
+from ..utils.parser import Parser
 import time
 import json
 from collections import deque

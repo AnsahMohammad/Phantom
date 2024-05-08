@@ -1,6 +1,6 @@
 import argparse
 import time
-from .phantom_engine import Phantom
+from .core.crawler import Phantom
 
 
 def main(num_threads, urls, show_logs, print_logs, sleep):

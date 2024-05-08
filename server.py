@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for
-from phantom.query_engine import Phantom_Query
-from phantom.phantom_engine import Parser
+from phantom.core.query_engine import Phantom_Query
+from phantom.utils.parser import Parser
 from supabase import create_client, Client
 
 # setting up database

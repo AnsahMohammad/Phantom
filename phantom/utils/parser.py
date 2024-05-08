@@ -28,20 +28,21 @@ class Parser:
             self.log(f"Failed to fetch {url}: {e}", "Parser")
             return None
 
-    def parse(self, url):
+    def parse(self, url) -> dict:
         self.log(f"parsing {url}", "Parser")
 
         url = self.clean_url(url)
         content = self.fetch(url)
 
         if content is None:
-            return [], [], url, None
+            return {"links": [], "words": [], "url": url, "title": None}
 
         try:
             soup = BeautifulSoup(content, "html.parser")
         except Exception as e:
             self.log(f"Failed to parse {url}: {e}", "Parser")
-            return [], [], url, None
+            return {"links": [], "words": [], "url": url, "title": None}
+            
 
         title = soup.title.string if soup.title else None
 
@@ -51,7 +52,7 @@ class Parser:
 
         return {"links": links, "words": words, "url": url, "title": title}
 
-    def url_parser(self, url):
+    def url_parser(self, url) -> dict:
         self.log(f"url parsing {url}", "Parser")
 
         cleaned_url = self.clean_url(url)

@@ -1,10 +1,10 @@
 import threading
 import time
 import random
-from .utils.logger import Logger
-from .utils.storage import Storage
+from ..utils.logger import Logger
+from ..utils.storage import Storage
 from collections import deque
-from .utils.parser import Parser
+from ..utils.parser import Parser
 
 
 class Phantom:
