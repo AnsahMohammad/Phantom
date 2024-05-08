@@ -5,4 +5,4 @@ source .env/bin/activate
 
 pip install -r requirements.txt
 # python3 phantom.py
-gunicorn -w 4 phantom:app
+gunicorn -w 4 server:app
