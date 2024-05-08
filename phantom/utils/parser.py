@@ -52,23 +52,11 @@ class Parser:
 
         return {"links": links, "words": words, "url": url, "title": title}
 
-    def url_parser(self, url) -> dict:
-        self.log(f"url parsing {url}", "Parser")
-
-        cleaned_url = self.clean_url(url)
-        content = self.fetch(cleaned_url)
-
-        soup = BeautifulSoup(content, "html.parser")
-        title = soup.title.string
-        return {"title": title, "url": cleaned_url}
-
-
 if __name__ == "__main__":
     parser = Parser()
     sites = ["www.google.com", "https://www.google.com", "google.com/", "m.google.com", "https://www.google.co.in/intl/en/about/products?tab=wh"]
     for site in sites:
         print(parser.parse(site))
-        print(parser.url_parser(site))
         print(parser.clean_url(site))
         print(urlparse(site))
         print("-"*50)
