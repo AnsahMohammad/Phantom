@@ -33,8 +33,7 @@ jobs:
     - name: Test Gunicorn server
       run: |
         source .env/bin/activate
-        gunicorn -w 4 server:app
+        gunicorn -w 4 server:app &
         sleep 5
         curl -f http://localhost:8000/
         echo "Gunicorn test completed"
-
