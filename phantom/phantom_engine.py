@@ -81,7 +81,8 @@ class Phantom:
             local_urls.add(url)
             traversed.append(url)
             self.log(f"Traversing {url}", f"Crawler {id}")
-            neighbors, content, url, title = parser.parse(url)
+            parsed_data = parser.parse(url)
+            neighbors, content, url, title = parsed_data["links"], parsed_data["words"], parsed_data["url"], parsed_data["title"]
             self.storage.add(url, content, title)
             self.title_storage.add(url, title)
             queue.extend(neighbors)
