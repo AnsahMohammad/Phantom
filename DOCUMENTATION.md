@@ -24,7 +24,7 @@ There are two ways you can crawl the websites to save the indexes
 
 ## 1) Multithreaded Crawlers
 
-The multithreaded crawler is implemented in the `Phantom` class in the `src/phantom.py` file. It uses multiple threads to crawl websites concurrently, which significantly speeds up the crawling process.
+The multithreaded crawler is implemented in the `Phantom` class in the `phantom/phantom.py` file. It uses multiple threads to crawl websites concurrently, which significantly speeds up the crawling process.
 
 Here's a brief overview of how it works:
 
@@ -40,7 +40,7 @@ Here's a brief overview of how it works:
 
 - The `stop` method can be used to stop the crawling process. It sets a `kill` flag that causes the `crawler` methods to stop, waits for all threads to finish, and then saves the crawled data and prints some statistics.
 
-You can start the program by running the script on `src/phantom.py`. It uses `phantom_engine.py` to crawl the sites using multiple threads.
+You can start the program by running the script on `phantom/phantom.py`. It uses `phantom_engine.py` to crawl the sites using multiple threads.
 
 
 ## 2) Distributed Crawler system

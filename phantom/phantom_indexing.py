@@ -12,7 +12,6 @@ from supabase import create_client, Client
 # nltk.download('punkt')
 # nltk.download('stopwords')
 
-
 class PhantomIndexer:
     def __init__(self, filename="index.json", out="indexed.json") -> None:
         self.out_file = out
@@ -107,19 +106,24 @@ class PhantomIndexer:
         if self.remote_db:
             try:
                 self.log("Fetching data from remote DB")
-                response = (
-                    self.supabase.table("index").select("url", "content").execute()
-                )
-                for record in response.data:
-                    self.data[record["url"]] = json.loads(record["content"])
-                self.log(
-                    f"Data fetched from remote DB: {len(self.data)}",
-                    "Phantom-Indexer-Loader",
-                )
+                start = 0
+                end = 999
+                while True:
+                    response = self.supabase.table("index").select("url", "content").range(start, end).execute()
+                    if not response.data:
+                        break
+                    for record in response.data:
+                        self.data[record["url"]] = json.loads(record["content"])
+                    start += 1000
+                    end += 1000
+                    self.log(f"Data fetched from remote DB: {len(self.titles)}", "Phantom-Indexer-Loader")
+
+                self.log(f"Data fetched from remote DB: {len(self.data)}", "Phantom-Indexer-Loader")
             except Exception as e:
                 print(f"\nError fetching data from index table: {e}\n")
                 return False
             return True
+
 
         else:
             self.log("Loading data from local file")

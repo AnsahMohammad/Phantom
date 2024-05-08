@@ -1,13 +1,10 @@
 import threading
 import time
 import random
-import requests
-from bs4 import BeautifulSoup
-from urllib.parse import urlparse, urljoin
-import json
 from .utils.logger import Logger
 from .utils.storage import Storage
 from collections import deque
+from .utils.parser import Parser
 
 
 class Phantom:
@@ -156,48 +153,6 @@ class Phantom:
         self.threads.clear()
         self.id_root.clear()
         print("Phantom Crawler Ended")
-
-
-class Parser:
-    def __init__(self, show_logs=True):
-        self.show_logs = show_logs
-        self.log = Logger(self.show_logs).log
-
-    def clean_url(self, url):
-        parsed = urlparse(url)
-        cleaned = parsed.scheme + "://" + parsed.netloc + parsed.path
-        return cleaned
-
-    def fetch(self, url):
-        response = requests.get(url)
-        return response.content
-
-    def parse(self, url):
-        self.log(f"parsing {url}", "Parser")
-
-        # cleaned_url = self.clean_url(url)   since already cleaned disabled
-        content = self.fetch(url)
-
-        soup = BeautifulSoup(content, "html.parser")
-
-        title = soup.title.string if soup.title else None
-
-        text = soup.get_text()
-        words = text.split()
-        links = [urljoin(url, link.get("href")) for link in soup.find_all("a")]
-
-        return links, words, url, title
-
-    def url_parser(self, url):
-        self.log(f"parsing {url}", "Parser")
-
-        cleaned_url = self.clean_url(url)
-        content = self.fetch(cleaned_url)
-
-        soup = BeautifulSoup(content, "html.parser")
-        title = soup.title.string
-        return (title, cleaned_url)
-
 
 # phantom = Phantom(num_threads=8,urls=["https://github.com/AnsahMohammad"], show_logs=True, print_logs=True)
 # phantom.run()
