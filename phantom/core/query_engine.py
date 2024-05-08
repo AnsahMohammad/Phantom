@@ -4,9 +4,14 @@ from ..utils.logger import Logger
 import os
 from supabase import create_client, Client
 
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
+from nltk.tokenize import word_tokenize
+import string
+
 
 class Phantom_Query:
-    def __init__(self, filename="indexed.json", title_path=None):
+    def __init__(self, filename="indexed", title_path=None):
 
         self.showlogs = True
         self.title_table = False
@@ -14,9 +19,10 @@ class Phantom_Query:
         self.logger = Logger(self.showlogs)
         self.log = self.logger.log
 
-        self.data = {}
-        with open(filename, "r") as f:
-            self.data = json.load(f)
+        self.CONTENT_WEIGHT = 1
+        self.TITLE_WEIGHT = 3
+
+        self.load(filename)
 
         if title_path or self.remote_db:
             self.title_path = title_path
@@ -30,17 +36,54 @@ class Phantom_Query:
         self.idf = self.data["idf"]
         self.tfidf = self.data["tfidf"]
 
+        self.t_idf = self.t_data["idf"]
+        self.t_tfidf = self.t_data["tfidf"]
+
         self.lookup = set(self.idf.keys())
+        self.t_lookup = set(self.t_idf.keys())
         self.log("Query Engine Ready", "Query_Engine")
+    
+    def load(self, filename):
+        self.data = {}
+        with open(filename+".json", "r") as f:
+            self.data = json.load(f)
+        
+        self.t_data = {}
+        with open("title_" + filename + ".json", "r") as f:
+            self.t_data = json.load(f)
 
     def query(self, query, count=10):
-        self.log(f"Query recieved : {query}", "Query_Engine")
-        query = query.split()
+        self.log(f"Query received : {query}", "Query_Engine")
+
+        # Process the query
+        stemmer = PorterStemmer()
+        stop_words = set(stopwords.words("english"))
+        processed_query = []
+        try:
+            words = word_tokenize(query)
+            for word in words:
+                word = word.lower().translate(str.maketrans("", "", string.punctuation))
+                if word not in stop_words and len(word) < 30:
+                    stemmed_word = stemmer.stem(word)
+                    processed_query.append(stemmed_word)
+        except Exception as e:
+            self.log(f"Error processing query: {e}", "Query_Engine")
+
+        query = processed_query
         query_len = len(query)
+
+
         query = [term for term in query if term in self.lookup]
         query_freq = Counter(query)
         query_tfidf = {
-            term: (query_freq[term] / query_len) * self.idf[term] for term in query
+            term: (query_freq[term] / query_len) * self.idf.get(term,0.0) for term in query
+        }
+
+        query = processed_query
+        query = [term for term in query if term in self.t_lookup]
+        query_freq = Counter(query)
+        query_t_tfidf = {
+            term: (query_freq[term] / query_len) * self.t_idf.get(term, 0.0) for term in query
         }
 
         self.log(f"TF-idf of query : {query_tfidf}", "Query_Engine")
@@ -48,7 +91,11 @@ class Phantom_Query:
         scores = {}
         for doc, tfidf in self.tfidf.items():
             score = sum(tfidf[term] * query_tfidf.get(term, 0.0) for term in tfidf)
-            scores[doc] = score
+            scores[doc] = self.CONTENT_WEIGHT * score
+
+        for doc, tfidf in self.t_tfidf.items():
+            score = sum(tfidf[term] * query_t_tfidf.get(term, 0.0) for term in tfidf)
+            scores[doc] += self.TITLE_WEIGHT * score
 
         ranked_docs = sorted(scores.items(), key=lambda x: x[1], reverse=True)
         self.log(f"Ranked documents : {ranked_docs[:count]}", "Query_Engine")
@@ -126,5 +173,5 @@ class Phantom_Query:
 
 
 if __name__ == "__main__":
-    query_engine = Phantom_Query("indexed.json")
+    query_engine = Phantom_Query("indexed")
     query_engine.run()

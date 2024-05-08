@@ -9,5 +9,5 @@ sleep 2
 python3 -m phantom.core.indexer
 echo "Phantom Indexing done"
 sleep 2
-clear
+# clear
 python3 -m phantom.core.query_engine
