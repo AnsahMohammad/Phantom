@@ -1,6 +1,6 @@
 import socket
 import threading
-from .utils.logger import Logger
+from ..utils.logger import Logger
 import os
 import json
 

@@ -12,7 +12,6 @@ from supabase import create_client, Client
 # nltk.download('punkt')
 # nltk.download('stopwords')
 
-
 class PhantomIndexer:
     def __init__(self, filename="index.json", out="indexed.json") -> None:
         self.out_file = out
