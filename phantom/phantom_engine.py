@@ -9,7 +9,13 @@ from .utils.parser import Parser
 
 class Phantom:
     def __init__(
-        self, urls, num_threads=1, show_logs=False, print_logs=False, burnout=700
+        self,
+        urls,
+        num_threads=1,
+        show_logs=False,
+        print_logs=False,
+        burnout=700,
+        resume=False,
     ):
         print("Phantom Crawler Started")
 
@@ -25,7 +31,7 @@ class Phantom:
         self.threads = []
         self.id_root = {}
 
-        self.storage = Storage("index")
+        self.storage = Storage("index", resume=resume)
         self.title_storage = Storage("titles", remote_db=False)
         self.visited_urls = self.storage.fetch_visited()
 
@@ -84,15 +90,6 @@ class Phantom:
 
         queue.clear()
         self.log("CRAWLER STOPPED", f"Crawler {id}")
-
-    # def crawler(self, id, url):
-    #     """Crawler using Crawler Object"""
-    #     crawler = Crawler(url, id)
-    #     while not self.kill:
-    #         crawler.crawl()
-    #         # crawler.skip()
-
-    #     crawler.kill()
 
     def update_urls(self, local_url, id):
         """update the local_urls with global index"""
@@ -153,6 +150,7 @@ class Phantom:
         self.threads.clear()
         self.id_root.clear()
         print("Phantom Crawler Ended")
+
 
 # phantom = Phantom(num_threads=8,urls=["https://github.com/AnsahMohammad"], show_logs=True, print_logs=True)
 # phantom.run()

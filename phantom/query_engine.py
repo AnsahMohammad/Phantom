@@ -91,15 +91,26 @@ class Phantom_Query:
                 start = 0
                 end = 999
                 while True:
-                    response = self.supabase.table("index").select("url", "title").range(start, end).execute()
+                    response = (
+                        self.supabase.table("index")
+                        .select("url", "title")
+                        .range(start, end)
+                        .execute()
+                    )
                     if not response.data:
                         break
                     for record in response.data:
                         self.titles[record["url"]] = record["title"]
                     start += 1000
                     end += 1000
-                    self.log(f"Data fetched from remote DB: {len(self.titles)}", "Phantom-Indexer-Loader")
-                self.log(f"Data fetched from remote DB: {len(self.titles)}", "Phantom-Indexer-Loader")
+                    self.log(
+                        f"Data fetched from remote DB: {len(self.titles)}",
+                        "Phantom-Indexer-Loader",
+                    )
+                self.log(
+                    f"Data fetched from remote DB: {len(self.titles)}",
+                    "Phantom-Indexer-Loader",
+                )
             except Exception as e:
                 print(f"\nError fetching data from index table: {e}\n")
                 return False
