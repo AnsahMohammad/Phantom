@@ -1,4 +1,4 @@
-name: Crawler Test
+name: Unit Test
 
 on: [push]
 
@@ -32,3 +32,8 @@ jobs:
         python3 -m phantom.core.indexer
 
         echo "Crawling completed"
+    
+    - name: Unittests
+      run: |
+        python3 -m unittest discover -s tests
+        echo "Unit test done"
