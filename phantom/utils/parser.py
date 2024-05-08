@@ -35,19 +35,19 @@ class Parser:
         content = self.fetch(url)
 
         if content is None:
-            return {"links": [], "words": [], "url": url, "title": None}
+            return {"links": [], "words": "", "url": url, "title": None}
 
         try:
             soup = BeautifulSoup(content, "html.parser")
         except Exception as e:
             self.log(f"Failed to parse {url}: {e}", "Parser")
-            return {"links": [], "words": [], "url": url, "title": None}
+            return {"links": [], "words": "", "url": url, "title": None}
             
 
         title = soup.title.string if soup.title else None
 
         text = soup.get_text()
-        words = text.split()
+        words = " ".join(text.split())
         links = [self.clean_url(urljoin(url, link.get("href"))) for link in soup.find_all("a")]
 
         return {"links": links, "words": words, "url": url, "title": title}

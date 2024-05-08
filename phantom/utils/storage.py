@@ -32,7 +32,7 @@ class Storage:
             try:
                 data, count = (
                     self.supabase.table(self.table_name)
-                    .insert({"url": key, "content": json.dumps(value), "title": title})
+                    .insert({"url": key, "content": value, "title": title})
                     .execute()
                 )
             except Exception as e:
