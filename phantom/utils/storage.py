@@ -42,6 +42,7 @@ class Storage:
 
         # print("value is of length : ", len(value))
         self.data[key] = value
+        return True
 
     def fetch_visited(self):
         visited = set()
