@@ -24,7 +24,10 @@ class Phantom_Query:
         self.CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 500))
         self.CHUNK_LIMIT = int(os.environ.get("CHUNK_LIMIT", 10000))
 
-        self.log(f"Query Engine called for in: {filename}\n IDF_CONTENT: {self.IDF_CONTENT}\n IDF_TITLE: {self.IDF_TITLE}", "Query_Engine")
+        self.log(
+            f"Query Engine called for in: {filename}\n IDF_CONTENT: {self.IDF_CONTENT}\n IDF_TITLE: {self.IDF_TITLE}",
+            "Query_Engine",
+        )
 
         self.CONTENT_WEIGHT = 1
         self.TITLE_WEIGHT = 3
@@ -52,12 +55,12 @@ class Phantom_Query:
 
         self.stemmer = PorterStemmer()
         self.stop_words = set(stopwords.words("english"))
-    
+
     def load(self, filename):
         self.data = {}
-        with open(filename+".json", "r") as f:
+        with open(filename + ".json", "r") as f:
             self.data = json.load(f)
-        
+
         self.t_data = {}
         with open("title_" + filename + ".json", "r") as f:
             self.t_data = json.load(f)
@@ -66,7 +69,7 @@ class Phantom_Query:
         self.log(f"Query received : {query}", "Query_Engine")
 
         # Process the query
-        
+
         processed_query = []
         try:
             words = word_tokenize(query)
@@ -87,7 +90,8 @@ class Phantom_Query:
             query = [term for term in query if term in self.lookup]
             query_freq = Counter(query)
             query_tfidf = {
-                term: (query_freq[term] / query_len) * self.idf.get(term,0.0) for term in query
+                term: (query_freq[term] / query_len) * self.idf.get(term, 0.0)
+                for term in query
             }
             self.log(f"Title TF-idf of query : {query_tfidf}", "Query_Engine")
 
@@ -100,17 +104,20 @@ class Phantom_Query:
             query = [term for term in query if term in self.t_lookup]
             query_freq = Counter(query)
             query_t_tfidf = {
-                term: (query_freq[term] / query_len) * self.t_idf.get(term, 0.0) for term in query
+                term: (query_freq[term] / query_len) * self.t_idf.get(term, 0.0)
+                for term in query
             }
             self.log(f"TF-idf of query : {query_t_tfidf}", "Query_Engine")
 
             for doc, tfidf in self.t_tfidf.items():
-                score = sum(tfidf[term] * query_t_tfidf.get(term, 0.0) for term in tfidf)
+                score = sum(
+                    tfidf[term] * query_t_tfidf.get(term, 0.0) for term in tfidf
+                )
                 scores[doc] += self.TITLE_WEIGHT * score
 
         ranked_docs = sorted(scores.items(), key=lambda x: x[1], reverse=True)
         self.log(f"Ranked documents : {ranked_docs[:count]}", "Query_Engine")
-        
+
         final_results = []
         for doc, score in ranked_docs[:count]:
             try:

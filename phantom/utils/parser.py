@@ -10,13 +10,12 @@ class Parser:
         self.show_logs = show_logs
         self.log = Logger(self.show_logs, "phantom-parser").log
 
-
     def clean_url(self, url):
         parsed = urlparse(url)
         if not parsed.scheme:
-            url = 'https://' + url
+            url = "https://" + url
             parsed = urlparse(url)
-        cleaned = urlunparse((parsed.scheme, parsed.netloc, parsed.path, '', '', ''))
+        cleaned = urlunparse((parsed.scheme, parsed.netloc, parsed.path, "", "", ""))
         return cleaned
 
     def fetch(self, url):
@@ -42,21 +41,30 @@ class Parser:
         except Exception as e:
             self.log(f"Failed to parse {url}: {e}", "Parser")
             return {"links": [], "words": "", "url": url, "title": None}
-            
 
         title = soup.title.string if soup.title else None
 
         text = soup.get_text()
         words = " ".join(text.split())
-        links = [self.clean_url(urljoin(url, link.get("href"))) for link in soup.find_all("a")]
+        links = [
+            self.clean_url(urljoin(url, link.get("href")))
+            for link in soup.find_all("a")
+        ]
 
         return {"links": links, "words": words, "url": url, "title": title}
 
+
 if __name__ == "__main__":
     parser = Parser()
-    sites = ["www.google.com", "https://www.google.com", "google.com/", "m.google.com", "https://www.google.co.in/intl/en/about/products?tab=wh"]
+    sites = [
+        "www.google.com",
+        "https://www.google.com",
+        "google.com/",
+        "m.google.com",
+        "https://www.google.co.in/intl/en/about/products?tab=wh",
+    ]
     for site in sites:
         print(parser.parse(site))
         print(parser.clean_url(site))
         print(urlparse(site))
-        print("-"*50)
+        print("-" * 50)

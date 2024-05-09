@@ -14,7 +14,9 @@ from supabase import create_client, Client
 
 
 class PhantomIndexer:
-    def __init__(self, filename="index", out="indexed", key="url", val="content") -> None:
+    def __init__(
+        self, filename="index", out="indexed", key="url", val="content"
+    ) -> None:
         self.in_file = filename
         self.out_file = out
 
@@ -25,7 +27,9 @@ class PhantomIndexer:
         self.CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 500))
         self.CHUNK_LIMIT = int(os.environ.get("CHUNK_LIMIT", 10000))
 
-        self.log(f"Indexer called for in: {self.in_file} out: {self.out_file}, key: {key}, val: {val}")
+        self.log(
+            f"Indexer called for in: {self.in_file} out: {self.out_file}, key: {key}, val: {val}"
+        )
         self.data = self.load(key=key, val=val)
         if not self.data:
             # if remote cause error, load from local
@@ -36,8 +40,6 @@ class PhantomIndexer:
         self.tf = {}
         self.idf = {}
         self.tfidf = {}
-        
-
 
     def calculate_tf(self):
         self.log("Calculating TF", "Phantom-Indexer")
@@ -75,16 +77,21 @@ class PhantomIndexer:
             try:
                 words = word_tokenize(words)
                 for word in words:
-                    word = word.lower().translate(str.maketrans("", "", string.punctuation))
+                    word = word.lower().translate(
+                        str.maketrans("", "", string.punctuation)
+                    )
                     if word not in stop_words and len(word) < 30:
                         stemmed_word = stemmer.stem(word)
                         processed_words.append(stemmed_word)
                 if count % self.CHUNK_SIZE == 0:  # Log status
-                    self.log(f"Processed {round((count/self.documents)*100,2)}% documents", "Phantom-Indexer")
+                    self.log(
+                        f"Processed {round((count/self.documents)*100,2)}% documents",
+                        "Phantom-Indexer",
+                    )
                 self.data[doc] = processed_words
             except Exception as e:
                 self.log(f"Error processing {doc}: {e}", "Phantom-Indexer")
-            
+
             del words
 
         self.log("Data Processed", "Phantom-Indexer")
@@ -160,7 +167,7 @@ class PhantomIndexer:
             self.log("Loading data from local file")
             with open(self.in_file + ".json", "r") as f:
                 data = json.load(f)
-        
+
         return data
 
     def save(self):
