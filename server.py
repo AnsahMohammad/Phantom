@@ -25,10 +25,11 @@ parser = Parser()
 @app.route("/", methods=["GET"])
 def home():
     input_text = request.args.get("q", "")
+    result = ["www.google.com", 0, "Google"]
     if input_text:
         result = process_input(input_text)
         return render_template("result.html", result=result, input_text=input_text)
-    return render_template("home.html")
+    return render_template("home.html", result=result)
 
 
 def analytics(input_text):
