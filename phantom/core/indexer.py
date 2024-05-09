@@ -22,8 +22,8 @@ class PhantomIndexer:
         self.remote_db = self.check_remote()
         self.logger = Logger(self.showlogs, "Indexer")
         self.log = self.logger.log
-        self.CHUNK_SIZE = os.environ.get("CHUNK_SIZE", 500)
-        self.CHUNK_LIMIT = os.environ.get("CHUNK_LIMIT", 10000)
+        self.CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 500))
+        self.CHUNK_LIMIT = int(os.environ.get("CHUNK_LIMIT", 10000))
 
         self.log(f"Indexer called for in: {self.in_file} out: {self.out_file}, key: {key}, val: {val}")
         self.data = self.load(key=key, val=val)
