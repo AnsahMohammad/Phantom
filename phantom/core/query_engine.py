@@ -99,12 +99,15 @@ class Phantom_Query:
 
         ranked_docs = sorted(scores.items(), key=lambda x: x[1], reverse=True)
         self.log(f"Ranked documents : {ranked_docs[:count]}", "Query_Engine")
-
+        
         final_results = []
         for doc, score in ranked_docs[:count]:
-            title = self.titles[doc] if self.title_table else None
-            final_results.append((doc, score, title))
-
+            try:
+                title = self.titles[doc] if self.title_table else None
+                final_results.append((doc, score, title))
+            except Exception as e:
+                print(f"Error processing document {doc}: {e}")
+                continue
         return final_results
 
     def run(self):
