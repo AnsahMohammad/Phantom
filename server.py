@@ -25,6 +25,7 @@ parser = Parser()
 @app.route("/", methods=["GET"])
 def home():
     input_text = request.args.get("q", "")
+    print("recieved request : ", request.args)
     result = ["www.google.com", 0, "Google"]
     if input_text:
         result = process_input(input_text)
@@ -32,11 +33,18 @@ def home():
     return render_template("home.html", result=result)
 
 
-def analytics(input_text):
+def analytics():
     if not REMOTE_DB:
         return False
+    input_text = request.args.get("q", "")
+    browser = request.args.get("browser", "")
+    device = request.args.get("device", "")
     try:
-        data, count = supabase.table("queries").insert({"query": input_text}).execute()
+        data, count = supabase.table("queries").insert({
+            "query": input_text,
+            "browser": browser,
+            "device": device
+        }).execute()
     except Exception as e:
         print(f"\nError inserting record into 'queries' table: {e}\n")
         return False
@@ -45,9 +53,8 @@ def analytics(input_text):
 
 def process_input(input_text):
     result = engine.query(input_text, count=20)  # (doc, score, title)
-    analytics(input_text)
+    analytics()
     return result
-
 
 @app.route("/health", methods=["GET"])
 def health_check():

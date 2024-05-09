@@ -94,8 +94,10 @@
       <a href="/">
       <h1 class="Home sevillana-regular">Phantom</h1>
       </a>
-      <form method="GET" action="/" class="Form">
-        <input type="text" name="q" class="Search" value="{{ input_text }}" />
+      <form id="searchForm" method="GET" action="/" class="Form">
+        <input type="text" name="q" class="Search" placeholder="Search Query" value="{{ input_text }}" />
+        <input type="hidden" id="browser" name="browser" />
+        <input type="hidden" id="device" name="device" />
         <input type="submit" value="Search" class="Enter" />
       </form>
     </div>
@@ -111,4 +113,10 @@
       {% endfor %}
     </div>
   </body>
+  <script>
+    document.getElementById('searchForm').addEventListener('submit', function() {
+      document.getElementById('browser').value = navigator.userAgent;
+      document.getElementById('device').value = navigator.platform;
+    });
+  </script>
 </html>
