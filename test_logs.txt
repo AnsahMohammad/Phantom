@@ -1,2 +1,0 @@
-12:33:04 : Jane : Test log 1 | {'param1': 'value1'}
-12:33:04 : Jane : Test log 2 | {'param2': 'value2'}

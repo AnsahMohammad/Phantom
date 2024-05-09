@@ -1,5 +1,5 @@
 import json
-from collections import Counter
+from collections import Counter, defaultdict
 from ..utils.logger import Logger
 import os
 from supabase import create_client, Client
@@ -18,6 +18,13 @@ class Phantom_Query:
         self.remote_db = self.check_remote()
         self.logger = Logger(self.showlogs)
         self.log = self.logger.log
+
+        self.IDF_CONTENT = os.environ.get("IDF_CONTENT", "1") == "1"
+        self.IDF_TITLE = os.environ.get("IDF_TITLE", "1") == "1"
+        self.CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 500))
+        self.CHUNK_LIMIT = int(os.environ.get("CHUNK_LIMIT", 10000))
+
+        self.log(f"Query Engine called for in: {filename}\n IDF_CONTENT: {self.IDF_CONTENT}\n IDF_TITLE: {self.IDF_TITLE}", "Query_Engine")
 
         self.CONTENT_WEIGHT = 1
         self.TITLE_WEIGHT = 3
@@ -42,6 +49,9 @@ class Phantom_Query:
         self.lookup = set(self.idf.keys())
         self.t_lookup = set(self.t_idf.keys())
         self.log("Query Engine Ready", "Query_Engine")
+
+        self.stemmer = PorterStemmer()
+        self.stop_words = set(stopwords.words("english"))
     
     def load(self, filename):
         self.data = {}
@@ -56,46 +66,47 @@ class Phantom_Query:
         self.log(f"Query received : {query}", "Query_Engine")
 
         # Process the query
-        stemmer = PorterStemmer()
-        stop_words = set(stopwords.words("english"))
+        
         processed_query = []
         try:
             words = word_tokenize(query)
             for word in words:
                 word = word.lower().translate(str.maketrans("", "", string.punctuation))
-                if word not in stop_words and len(word) < 30:
-                    stemmed_word = stemmer.stem(word)
-                    processed_query.append(stemmed_word)
+                stemmed_word = self.stemmer.stem(word)
+                processed_query.append(stemmed_word)
+
         except Exception as e:
             self.log(f"Error processing query: {e}", "Query_Engine")
 
         query = processed_query
         query_len = len(query)
 
+        scores = defaultdict(float)
 
-        query = [term for term in query if term in self.lookup]
-        query_freq = Counter(query)
-        query_tfidf = {
-            term: (query_freq[term] / query_len) * self.idf.get(term,0.0) for term in query
-        }
+        if self.IDF_CONTENT:
+            query = [term for term in query if term in self.lookup]
+            query_freq = Counter(query)
+            query_tfidf = {
+                term: (query_freq[term] / query_len) * self.idf.get(term,0.0) for term in query
+            }
+            self.log(f"Title TF-idf of query : {query_tfidf}", "Query_Engine")
 
-        query = processed_query
-        query = [term for term in query if term in self.t_lookup]
-        query_freq = Counter(query)
-        query_t_tfidf = {
-            term: (query_freq[term] / query_len) * self.t_idf.get(term, 0.0) for term in query
-        }
+            for doc, tfidf in self.tfidf.items():
+                score = sum(tfidf[term] * query_tfidf.get(term, 0.0) for term in tfidf)
+                scores[doc] = self.CONTENT_WEIGHT * score
 
-        self.log(f"TF-idf of query : {query_tfidf}", "Query_Engine")
+        if self.IDF_TITLE:
+            query = processed_query
+            query = [term for term in query if term in self.t_lookup]
+            query_freq = Counter(query)
+            query_t_tfidf = {
+                term: (query_freq[term] / query_len) * self.t_idf.get(term, 0.0) for term in query
+            }
+            self.log(f"TF-idf of query : {query_t_tfidf}", "Query_Engine")
 
-        scores = {}
-        for doc, tfidf in self.tfidf.items():
-            score = sum(tfidf[term] * query_tfidf.get(term, 0.0) for term in tfidf)
-            scores[doc] = self.CONTENT_WEIGHT * score
-
-        for doc, tfidf in self.t_tfidf.items():
-            score = sum(tfidf[term] * query_t_tfidf.get(term, 0.0) for term in tfidf)
-            scores[doc] += self.TITLE_WEIGHT * score
+            for doc, tfidf in self.t_tfidf.items():
+                score = sum(tfidf[term] * query_t_tfidf.get(term, 0.0) for term in tfidf)
+                scores[doc] += self.TITLE_WEIGHT * score
 
         ranked_docs = sorted(scores.items(), key=lambda x: x[1], reverse=True)
         self.log(f"Ranked documents : {ranked_docs[:count]}", "Query_Engine")
@@ -139,7 +150,7 @@ class Phantom_Query:
             try:
                 self.log("Fetching data from remote DB")
                 start = 0
-                end = 999
+                end = self.CHUNK_SIZE - 1
                 while True:
                     response = (
                         self.supabase.table("index")
@@ -151,12 +162,17 @@ class Phantom_Query:
                         break
                     for record in response.data:
                         self.titles[record["url"]] = record["title"]
-                    start += 1000
-                    end += 1000
+                    start += self.CHUNK_SIZE
+                    end += self.CHUNK_SIZE
                     self.log(
                         f"Data fetched from remote DB: {len(self.titles)}",
                         "Phantom-Indexer-Loader",
                     )
+
+                    if len(self.titles) > self.CHUNK_LIMIT:
+                        self.log("CHUNK limit reached", "Phantom-Indexer-Loader")
+                        break
+
                 self.log(
                     f"Data fetched from remote DB: {len(self.titles)}",
                     "Phantom-Indexer-Loader",
