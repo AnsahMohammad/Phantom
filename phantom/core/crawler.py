@@ -106,8 +106,10 @@ class Phantom:
         return self.visited_urls
 
     def run(self):
+        cur_url_index = 0
         while len(self.threads) < self.thread_count:
-            self.generate(self.urls[random.randint(0, self.len_urls - 1)])
+            self.generate(self.urls[cur_url_index])
+            cur_url_index = (cur_url_index + 1) % self.len_urls
 
         for thread in self.threads:
             thread.start()
