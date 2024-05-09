@@ -78,7 +78,8 @@ class PhantomIndexer:
                     if word not in stop_words and len(word) < 30:
                         stemmed_word = stemmer.stem(word)
                         processed_words.append(stemmed_word)
-                self.log(f"Processed {(count/self.documents)*100}% documents", "Phantom-Indexer")
+                if count % self.CHUNK_SIZE == 0:  # Log status
+                    self.log(f"Processed {round((count/self.documents)*100,2)}% documents", "Phantom-Indexer")
                 self.data[doc] = processed_words
             except Exception as e:
                 self.log(f"Error processing {doc}: {e}", "Phantom-Indexer")
