@@ -83,6 +83,8 @@ class PhantomIndexer:
                 self.data[doc] = processed_words
             except Exception as e:
                 self.log(f"Error processing {doc}: {e}", "Phantom-Indexer")
+            
+            del words
 
         self.log("Data Processed", "Phantom-Indexer")
 
