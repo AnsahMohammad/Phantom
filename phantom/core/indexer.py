@@ -179,12 +179,17 @@ class PhantomIndexer:
         self.log("Data Saved", "Phantom-Indexer")
 
 
-processor = PhantomIndexer("index", out="indexed")
-processor.process()
-processor.save()
-print("Indexing content completed!")
+IDF_CONTENT = os.environ.get("IDF_CONTENT", "1") == "1"
+IDF_TITLE = os.environ.get("IDF_TITLE", "1") == "1"
 
-processor = PhantomIndexer("index", out="title_indexed", key="url", val="title")
-processor.process()
-processor.save()
-print("Indexing titles completed!")
+if IDF_CONTENT:
+    processor = PhantomIndexer("index", out="indexed")
+    processor.process()
+    processor.save()
+    print("Indexing content completed!")
+
+if IDF_TITLE:
+    processor = PhantomIndexer("index", out="title_indexed", key="url", val="title")
+    processor.process()
+    processor.save()
+    print("Indexing titles completed!")
