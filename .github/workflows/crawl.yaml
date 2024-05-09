@@ -1,4 +1,4 @@
-name: Crawler Test
+name: Unit Test
 
 on: [push]
 
@@ -24,11 +24,17 @@ jobs:
     - name: Test crawler and indexer
       run: |
         source .env/bin/activate
-        python3 -m phantom.phantom --num_threads 2 --urls "https://github.com/AnsahMohammad" "https://github.com/AnsahMohammad" --sleep 6
+        python3 -m phantom.main --num_threads 2 --urls "https://github.com/AnsahMohammad" "https://github.com/AnsahMohammad" --sleep 6
 
         python3 -m nltk.downloader stopwords
         python3 -m nltk.downloader punkt
 
-        python3 -m phantom.phantom_indexing
+        python3 -m phantom.core.indexer
 
         echo "Crawling completed"
+    
+    - name: Unittests
+      run: |
+        pip install -r requirements.txt
+        python3 -m unittest discover -s tests
+        echo "Unit test done"

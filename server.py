@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for
-from phantom.query_engine import Phantom_Query
-from phantom.phantom_engine import Parser
+from phantom.core.query_engine import Phantom_Query
+from phantom.utils.parser import Parser
 from supabase import create_client, Client
 
 # setting up database
@@ -18,17 +18,18 @@ else:
 
 # setting up the query engine
 app = Flask(__name__)
-engine = Phantom_Query("indexed.json", title_path="titles.json")
+engine = Phantom_Query("indexed", title_path="titles.json")
 parser = Parser()
 
 
 @app.route("/", methods=["GET"])
 def home():
     input_text = request.args.get("q", "")
+    result = ["www.google.com", 0, "Google"]
     if input_text:
         result = process_input(input_text)
         return render_template("result.html", result=result, input_text=input_text)
-    return render_template("home.html")
+    return render_template("home.html", result=result)
 
 
 def analytics(input_text):

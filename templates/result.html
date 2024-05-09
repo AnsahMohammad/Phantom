@@ -66,6 +66,27 @@
         color: white;
       }
 
+      .result a {
+        color: white;
+        text-decoration: none;
+      }
+
+      .result h2 {
+        margin: 0;
+      }
+
+      .result .url {
+        color: lightgrey;
+        font-size: 0.8rem;
+      }
+
+      .item {
+        margin: 10px;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: rgb(50, 50, 50);
+      }
+
     </style>
   </head>
   <body>
@@ -80,11 +101,14 @@
     </div>
     <hr />
     <div class="result">
-        {% for item in result %}
+      {% for item in result %}
+        <div class="item">
           <a href="{{ item[0] }}">
             <h2>{{ item[2] }}</h2>
           </a>
-        {% endfor %}
+          <div class="url">{{ item[0] }}</div>
+        </div>
+      {% endfor %}
     </div>
   </body>
 </html>

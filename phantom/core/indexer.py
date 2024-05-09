@@ -5,33 +5,38 @@ from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 import string
-from .utils.logger import Logger
+from ..utils.logger import Logger
 import os
 from supabase import create_client, Client
 
 # nltk.download('punkt')
 # nltk.download('stopwords')
 
+
 class PhantomIndexer:
-    def __init__(self, filename="index.json", out="indexed.json") -> None:
-        self.out_file = out
+    def __init__(self, filename="index", out="indexed", key="url", val="content") -> None:
         self.in_file = filename
+        self.out_file = out
 
         self.showlogs = True
         self.remote_db = self.check_remote()
-        self.logger = Logger(self.showlogs)
+        self.logger = Logger(self.showlogs, "Indexer")
         self.log = self.logger.log
+        self.CHUNK_SIZE = 500
 
-        self.data = {}
-        if not self.load():
+        self.log(f"Indexer called for in: {self.in_file} out: {self.out_file}, key: {key}, val: {val}")
+        self.data = self.load(key=key, val=val)
+        if not self.data:
             # if remote cause error, load from local
             self.remote_db = False
-            self.load()
+            self.data = self.load()
 
         self.documents = len(self.data.keys())
         self.tf = {}
         self.idf = {}
         self.tfidf = {}
+        
+
 
     def calculate_tf(self):
         self.log("Calculating TF", "Phantom-Indexer")
@@ -62,15 +67,22 @@ class PhantomIndexer:
         self.log("Processing Data", "Phantom-Indexer")
         stemmer = PorterStemmer()
         stop_words = set(stopwords.words("english"))
-
+        count = 0
         for doc, words in self.data.items():
+            count += 1
             processed_words = []
-            for word in words:
-                word = word.lower().translate(str.maketrans("", "", string.punctuation))
-                if word not in stop_words and len(word) < 30:
-                    stemmed_word = stemmer.stem(word)
-                    processed_words.append(stemmed_word)
-            self.data[doc] = processed_words
+            try:
+                words = word_tokenize(words)
+                for word in words:
+                    word = word.lower().translate(str.maketrans("", "", string.punctuation))
+                    if word not in stop_words and len(word) < 30:
+                        stemmed_word = stemmer.stem(word)
+                        processed_words.append(stemmed_word)
+                if count % self.CHUNK_SIZE == 0:  # Log status
+                    self.log(f"Processed {round((count/self.documents)*100,2)}% documents", "Phantom-Indexer")
+                self.data[doc] = processed_words
+            except Exception as e:
+                self.log(f"Error processing {doc}: {e}", "Phantom-Indexer")
 
         self.log("Data Processed", "Phantom-Indexer")
 
@@ -101,45 +113,64 @@ class PhantomIndexer:
         print("DB Ready")
         return remote_db
 
-    def load(self):
+    def load(self, key="url", val="content"):
         # load the index.json
+        data = {}
         if self.remote_db:
             try:
                 self.log("Fetching data from remote DB")
                 start = 0
-                end = 999
+                end = self.CHUNK_SIZE - 1
                 while True:
-                    response = self.supabase.table("index").select("url", "content").range(start, end).execute()
+                    response = (
+                        self.supabase.table(self.in_file)
+                        .select(key, val)
+                        .range(start, end)
+                        .execute()
+                    )
                     if not response.data:
                         break
                     for record in response.data:
-                        self.data[record["url"]] = json.loads(record["content"])
-                    start += 1000
-                    end += 1000
-                    self.log(f"Data fetched from remote DB: {len(self.titles)}", "Phantom-Indexer-Loader")
+                        data[record[key]] = record[val]
+                    start += self.CHUNK_SIZE
+                    end += self.CHUNK_SIZE
+                    self.log(
+                        f"Data fetched from remote DB: {len(data)}",
+                        "Phantom-Indexer-Loader",
+                    )
 
-                self.log(f"Data fetched from remote DB: {len(self.data)}", "Phantom-Indexer-Loader")
+                self.log(
+                    f"Data fetched from remote DB: {len(data)}",
+                    "Phantom-Indexer-Loader",
+                )
             except Exception as e:
                 print(f"\nError fetching data from index table: {e}\n")
-                return False
-            return True
-
+                if len(data) > 500:
+                    return data
+                return None
 
         else:
             self.log("Loading data from local file")
-            with open(self.in_file, "r") as f:
-                self.data = json.load(f)
+            with open(self.in_file + ".json", "r") as f:
+                data = json.load(f)
+        
+        return data
 
     def save(self):
         # data = {"tfidf": self.tfidf, "idf": self.idf, "tf": self.tf}
         data = {"tfidf": self.tfidf, "idf": self.idf}
-        with open(self.out_file, "w") as f:
+        with open(self.out_file + ".json", "w") as f:
             json.dump(data, f)
 
         self.log("Data Saved", "Phantom-Indexer")
 
 
-processor = PhantomIndexer("index.json")
+processor = PhantomIndexer("index", out="indexed")
 processor.process()
 processor.save()
-print("Indexing completed!")
+print("Indexing content completed!")
+
+processor = PhantomIndexer("index", out="title_indexed", key="url", val="title")
+processor.process()
+processor.save()
+print("Indexing titles completed!")
