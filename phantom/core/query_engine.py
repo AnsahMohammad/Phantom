@@ -19,8 +19,8 @@ class Phantom_Query:
         self.logger = Logger(self.showlogs)
         self.log = self.logger.log
 
-        self.IDF_CONTENT = os.environ.get("IDF_CONTENT", 1) == "1"
-        self.IDF_TITLE = os.environ.get("IDF_TITLE", 1) == "1"
+        self.IDF_CONTENT = os.environ.get("IDF_CONTENT", "1") == "1"
+        self.IDF_TITLE = os.environ.get("IDF_TITLE", "1") == "1"
         self.CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 500))
         self.CHUNK_LIMIT = int(os.environ.get("CHUNK_LIMIT", 10000))
 
@@ -49,6 +49,9 @@ class Phantom_Query:
         self.lookup = set(self.idf.keys())
         self.t_lookup = set(self.t_idf.keys())
         self.log("Query Engine Ready", "Query_Engine")
+
+        self.stemmer = PorterStemmer()
+        self.stop_words = set(stopwords.words("english"))
     
     def load(self, filename):
         self.data = {}
@@ -63,16 +66,15 @@ class Phantom_Query:
         self.log(f"Query received : {query}", "Query_Engine")
 
         # Process the query
-        stemmer = PorterStemmer()
-        stop_words = set(stopwords.words("english"))
+        
         processed_query = []
         try:
             words = word_tokenize(query)
             for word in words:
                 word = word.lower().translate(str.maketrans("", "", string.punctuation))
-                if word not in stop_words and len(word) < 30:
-                    stemmed_word = stemmer.stem(word)
-                    processed_query.append(stemmed_word)
+                stemmed_word = self.stemmer.stem(word)
+                processed_query.append(stemmed_word)
+
         except Exception as e:
             self.log(f"Error processing query: {e}", "Query_Engine")
 
