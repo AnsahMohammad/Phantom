@@ -82,7 +82,12 @@ class Phantom:
             traversed.append(url)
             self.log(f"Traversing {url}", f"Crawler {id}")
             parsed_data = parser.parse(url)
-            neighbors, content, url, title = parsed_data["links"], parsed_data["words"], parsed_data["url"], parsed_data["title"]
+            neighbors, content, url, title = (
+                parsed_data["links"],
+                parsed_data["words"],
+                parsed_data["url"],
+                parsed_data["title"],
+            )
             self.storage.add(url, content, title)
             self.title_storage.add(url, title)
             queue.extend(neighbors)
@@ -101,8 +106,10 @@ class Phantom:
         return self.visited_urls
 
     def run(self):
+        cur_url_index = 0
         while len(self.threads) < self.thread_count:
-            self.generate(self.urls[random.randint(0, self.len_urls - 1)])
+            self.generate(self.urls[cur_url_index])
+            cur_url_index = (cur_url_index + 1) % self.len_urls
 
         for thread in self.threads:
             thread.start()

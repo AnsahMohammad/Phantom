@@ -63,7 +63,7 @@ IGNORE TEST CASE AS WIP
 # #         self.crawler.stop()
 # #         crawler_thread.join()
 # #         self.assertFalse(self.crawler.running)
-        
+
 # #         self.server.stop()
 # #         server_thread.join()
 # #         self.assertFalse(self.server.running)

@@ -40,11 +40,11 @@ def analytics():
     browser = request.args.get("browser", "")
     device = request.args.get("device", "")
     try:
-        data, count = supabase.table("queries").insert({
-            "query": input_text,
-            "browser": browser,
-            "device": device
-        }).execute()
+        data, count = (
+            supabase.table("queries")
+            .insert({"query": input_text, "browser": browser, "device": device})
+            .execute()
+        )
     except Exception as e:
         print(f"\nError inserting record into 'queries' table: {e}\n")
         return False
@@ -55,6 +55,7 @@ def process_input(input_text):
     result = engine.query(input_text, count=20)  # (doc, score, title)
     analytics()
     return result
+
 
 @app.route("/health", methods=["GET"])
 def health_check():
