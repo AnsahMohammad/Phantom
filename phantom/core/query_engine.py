@@ -121,7 +121,7 @@ class Phantom_Query:
         final_results = []
         for doc, score in ranked_docs[:count]:
             try:
-                title = self.titles[doc] if self.title_table else None
+                title = self.titles[doc] if self.title_table else doc
                 final_results.append((doc, score, title))
             except Exception as e:
                 print(f"Error processing document {doc}: {e}")
