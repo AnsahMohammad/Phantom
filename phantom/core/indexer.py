@@ -31,6 +31,7 @@ class PhantomIndexer:
             f"Indexer called for in: {self.in_file} out: {self.out_file}, key: {key}, val: {val}"
         )
         self.data = self.load(key=key, val=val)
+        self.remote_data = self.data.copy()
         if not self.data:
             # if remote cause error, load from local
             self.remote_db = False
@@ -178,6 +179,17 @@ class PhantomIndexer:
 
         self.log("Data Saved", "Phantom-Indexer")
 
+    def save_titles(self, filename="titles"):
+        """store url:title mapping in local file"""
+        if not self.remote_db:
+            self.log("Remote DB not connected, cannot save titles", "Phantom-Indexer")
+            return
+
+        data = {url: title for url, title in self.remote_data.items()}
+        with open(filename + ".json", "w") as f:
+            json.dump(data, f)
+        self.log(f"URL:Title mapping saved to {filename}.json", "Phantom-Indexer")
+
 
 IDF_CONTENT = os.environ.get("IDF_CONTENT", "1") == "1"
 IDF_TITLE = os.environ.get("IDF_TITLE", "1") == "1"
@@ -192,4 +204,5 @@ if IDF_TITLE:
     processor = PhantomIndexer("index", out="title_indexed", key="url", val="title")
     processor.process()
     processor.save()
+    processor.save_titles("titles")
     print("Indexing titles completed!")

@@ -39,8 +39,10 @@ class Phantom_Query:
             self.title_table = True
             self.titles = {}
             if not self.load_titles():
-                self.remote_db = False
-                self.load_titles()
+                self.log("Failed to load titles", "Query_Engine")
+                self.title_table = False
+            else:
+                self.log("Titles loaded", "Query_Engine")
 
         # self.tf = self.data["tf"]
         self.idf = self.data["idf"]
@@ -153,7 +155,14 @@ class Phantom_Query:
 
     def load_titles(self):
         # load the titles from index.json
-        if self.remote_db:
+        if self.title_table:
+            self.log("Loading data from local file")
+            with open(self.title_path, "r") as f:
+                self.titles = json.load(f)
+            self.log(f"Data loaded from local file: {len(self.titles)}")
+            return True
+
+        elif self.remote_db:
             try:
                 self.log("Fetching data from remote DB")
                 start = 0
@@ -193,11 +202,7 @@ class Phantom_Query:
             if not self.title_path:
                 return False
 
-            self.log("Loading data from local file")
-            with open(self.title_path, "r") as f:
-                self.titles = json.load(f)
-
 
 if __name__ == "__main__":
-    query_engine = Phantom_Query("indexed")
+    query_engine = Phantom_Query("indexed", title_path="titles.json")
     query_engine.run()
