@@ -19,4 +19,6 @@ jobs:
       run: bash crawl.sh
 
     - name: Call deploy hook
+      env:
+          deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
       run: curl -X POST ${{ secrets.DEPLOY_HOOK_URL }}
