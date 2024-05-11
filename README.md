@@ -91,8 +91,7 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 
 ### Bump 7
 
-- [ ] Replace content with meta data (perhaps?)
-- [ ] TF-idf only on title
+- [X] Replace content with meta data (perhaps?)
 - [X] Extract background worker sites from env
 - [X] AI support Beta
 - [X] Template optimizations
@@ -102,6 +101,7 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 - [ ] Optimize the deployment
 - [ ] Optimize the user interface
 
+- [ ] TF-idf only on title
 - [ ] Distributed query processing
 - [ ] Use only remote_db
 - [ ] Use better than TF-IDF
