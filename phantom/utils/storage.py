@@ -23,6 +23,8 @@ class Storage:
             print(f"Error while creating Supabase client: {e}")
             self.remote_db = False
 
+        self.log_errors = os.environ.get("LOG_ERRORS", False)
+
         print("Remote database : ", self.remote_db)
         print("DB Ready")
 
@@ -56,6 +58,8 @@ class Storage:
         return visited
 
     def save_errors(self, errors, origin=None):
+        if not self.log_errors:
+            return
         if self.remote_db:
             try:
                 data, count = (
