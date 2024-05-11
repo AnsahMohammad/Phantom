@@ -1,0 +1,22 @@
+name: Phantom Scheduler
+
+on:
+  schedule:
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Execute crawl.sh
+      env:
+        SUPABASE_URL: ${{ secrets.supabase_url }}
+        SUPABASE_KEY: ${{ secrets.supabase_key }}
+      run: bash crawl.sh
+
+    - name: Call deploy hook
+      run: curl -X POST ${{ secrets.DEPLOY_HOOK_URL }}
