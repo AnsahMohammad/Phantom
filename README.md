@@ -94,8 +94,11 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 - [ ] Extract background worker sites from env
 - [ ] Replace content with meta data (perhaps?)
 - [ ] TF-idf only on title
+- [ ] Template optimizations
 
 ### Bump 8+
+
+- [ ] Optimize the deployment
 
 - [ ] Use better than TF-IDF
 - [ ] Use unified crawler system in master-slave arch
@@ -111,7 +114,7 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 ### Done
 
 - [X] Don't download everytime query engine is started
-- [-] Crawler doesn't follow the schema of remote_db (can't be done)
+- [-] Crawler doesn't follow the schema of remote_db
 - [X] Tracking variables on the server
 - [X] UI Re-org
 - [X] Title TF_IDF
