@@ -33,11 +33,7 @@ class Phantom_Query:
         self.TITLE_WEIGHT = 3
 
         self.data = {}
-        if self.IDF_CONTENT:
-            self.load(filename)
-            # self.tf = self.data["tf"]
-            self.idf = self.data["idf"]
-            self.tfidf = self.data["tfidf"]
+        self.load(filename)
 
         if title_path or self.remote_db:
             self.title_path = title_path
@@ -49,24 +45,27 @@ class Phantom_Query:
             else:
                 self.log("Titles loaded", "Query_Engine")
 
-
-        self.t_idf = self.t_data["idf"]
-        self.t_tfidf = self.t_data["tfidf"]
-
-        self.lookup = set(self.idf.keys())
-        self.t_lookup = set(self.t_idf.keys())
         self.log("Query Engine Ready", "Query_Engine")
 
         self.stemmer = PorterStemmer()
         self.stop_words = set(stopwords.words("english"))
 
     def load(self, filename):
-        with open(filename + ".json", "r") as f:
-            self.data = json.load(f)
+        if self.IDF_CONTENT:
+            with open(filename + ".json", "r") as f:
+                self.data = json.load(f)
+                # self.tf = self.data["tf"]
+                self.idf = self.data["idf"]
+                self.tfidf = self.data["tfidf"]
+            self.lookup = set(self.idf.keys())
 
-        self.t_data = {}
-        with open("title_" + filename + ".json", "r") as f:
-            self.t_data = json.load(f)
+        if self.IDF_TITLE:
+            self.t_data = {}
+            with open("title_" + filename + ".json", "r") as f:
+                self.t_data = json.load(f)
+            self.t_idf = self.t_data["idf"]
+            self.t_tfidf = self.t_data["tfidf"]
+            self.t_lookup = set(self.t_idf.keys())
 
     def query(self, query, count=10):
         self.log(f"Query received : {query}", "Query_Engine")
