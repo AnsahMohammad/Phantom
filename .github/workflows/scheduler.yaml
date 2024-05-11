@@ -14,8 +14,8 @@ jobs:
 
     - name: Execute crawl.sh
       env:
-        SUPABASE_URL: ${{ secrets.supabase_url }}
-        SUPABASE_KEY: ${{ secrets.supabase_key }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
       run: bash crawl.sh
 
     - name: Call deploy hook
