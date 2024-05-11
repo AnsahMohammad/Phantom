@@ -35,6 +35,9 @@ class Phantom_Query:
         self.data = {}
         if self.IDF_CONTENT:
             self.load(filename)
+            # self.tf = self.data["tf"]
+            self.idf = self.data["idf"]
+            self.tfidf = self.data["tfidf"]
 
         if title_path or self.remote_db:
             self.title_path = title_path
@@ -46,9 +49,6 @@ class Phantom_Query:
             else:
                 self.log("Titles loaded", "Query_Engine")
 
-        # self.tf = self.data["tf"]
-        self.idf = self.data["idf"]
-        self.tfidf = self.data["tfidf"]
 
         self.t_idf = self.t_data["idf"]
         self.t_tfidf = self.t_data["tfidf"]
@@ -61,7 +61,6 @@ class Phantom_Query:
         self.stop_words = set(stopwords.words("english"))
 
     def load(self, filename):
-        self.data = {}
         with open(filename + ".json", "r") as f:
             self.data = json.load(f)
 
