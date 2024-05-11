@@ -32,6 +32,7 @@ class Phantom_Query:
         self.CONTENT_WEIGHT = 1
         self.TITLE_WEIGHT = 3
 
+        self.data = {}
         if self.IDF_CONTENT:
             self.load(filename)
 
