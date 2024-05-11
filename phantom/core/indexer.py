@@ -21,9 +21,9 @@ class PhantomIndexer:
         self.out_file = out
 
         self.showlogs = True
-        self.remote_db = self.check_remote()
         self.logger = Logger(self.showlogs, "Indexer")
         self.log = self.logger.log
+        self.remote_db = self.check_remote()
         self.CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 500))
         self.CHUNK_LIMIT = int(os.environ.get("CHUNK_LIMIT", 10000))
 

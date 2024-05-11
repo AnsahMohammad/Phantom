@@ -15,9 +15,9 @@ class Phantom_Query:
 
         self.showlogs = True
         self.title_table = False
-        self.remote_db = self.check_remote()
         self.logger = Logger(self.showlogs)
         self.log = self.logger.log
+        self.remote_db = self.check_remote()
 
         self.IDF_CONTENT = os.environ.get("IDF_CONTENT", "1") == "1"
         self.IDF_TITLE = os.environ.get("IDF_TITLE", "1") == "1"
