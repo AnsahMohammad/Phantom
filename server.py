@@ -72,10 +72,11 @@ def ai_process():
     token = os.environ.get("AI_TOKEN", None)
     headers = {'Authorization': f'Bearer {token}'} if token else {}
     generated_text = None
+    model = models[2]
+    model_url = "https://api-inference.huggingface.co/models/" + model
     try:
-        model = "https://api-inference.huggingface.co/models/" + models[2]
         response = requests.post(
-            model, headers=headers, json=data, timeout=10
+            model_url, headers=headers, json=data, timeout=10
         )
         response_json = json.loads(response.content.decode("utf-8"))[0]
         generated_text = response_json.get('generated_text', None)
@@ -83,9 +84,9 @@ def ai_process():
 
     except Exception as e:
         print(f"Error while sending request to AI model: {e}")
-        return jsonify(generated_text=None), 500
+        return jsonify(generated_text=None, model=model), 500
 
-    return jsonify(generated_text=generated_text), 200
+    return jsonify(generated_text=generated_text, model=model), 200
 
 @app.route("/health", methods=["GET"])
 def health_check():

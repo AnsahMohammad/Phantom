@@ -112,6 +112,7 @@
         right: 0;
         font-size: 0.8rem;
         color: grey;
+        margin: 0.5%;
       }
 
       @media (max-width: 600px) {
@@ -204,12 +205,14 @@
         .then((data) => {
           var aiResElement = document.querySelector(".ai_res");
           var aiDiv = document.querySelector(".ai_div");
-          if (aiResElement && aiDiv) {
+          var disclaimerElement = document.querySelector(".disclaimer");
+          if (aiResElement && aiDiv && disclaimerElement) {
             if (data.generated_text === "" || data.generated_text === null) {
               aiDiv.style.display = "none";
               return;
             }
             aiResElement.textContent = data.generated_text;
+            disclaimerElement.textContent = "AI generated text using " + data.model;
             aiDiv.style.display = "flex";
           }
         })
