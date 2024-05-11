@@ -85,3 +85,34 @@ We welcome contributions! Please see our CONTRIBUTING.md for details on how to c
 
 ## License
 This project is licensed under the terms of the Apache License. See the LICENSE file for details.
+
+
+## Development and Maintanence
+
+### Bump 7+
+
+- [ ] Use better than TF-IDF
+- [ ] Replace content with meta data (perhaps?)
+
+- [ ] Use unified crawler system in master-slave arch
+- [ ] Generalize Storage Class
+- [ ] TF-idf only on title
+
+### Bump 6
+
+- [-] Extract timestamp and sort accordingly
+- [X] Remote crawler service (use background workers)
+- [X] Analyze the extractable metadata
+- [X] Error Logger to supabase for analytics
+
+### Done
+
+- [X] Don't download everytime query engine is started
+- [-] Crawler doesn't follow the schema of remote_db (can't be done)
+- [X] Tracking variables on the server
+- [X] UI Re-org
+- [X] Title TF_IDF
+- [X] Join contents with .join(" ")
+- [X] Optimize parser to extract data effectively
+- [X] Add tests
+

@@ -23,6 +23,8 @@ class Storage:
             print(f"Error while creating Supabase client: {e}")
             self.remote_db = False
 
+        self.log_errors = os.environ.get("LOG_ERRORS", False)
+
         print("Remote database : ", self.remote_db)
         print("DB Ready")
 
@@ -54,6 +56,25 @@ class Storage:
             print("Visited URLs fetched from remote DB : ", len(visited))
 
         return visited
+
+    def save_errors(self, errors, origin=None):
+        if not self.log_errors:
+            return
+        if self.remote_db:
+            try:
+                data, count = (
+                    self.supabase.table("errors")
+                    .insert({"error": errors})
+                    .execute()
+                )
+            except Exception as e:
+                print(f"\nError inserting record into errors table: {e}\n")
+                return False
+            return True
+
+        with open("errors.json", "a") as f:
+            json.dump(errors, f)
+        return True
 
     def save(self):
         if self.remote_db:

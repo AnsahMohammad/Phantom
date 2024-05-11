@@ -72,7 +72,7 @@ class Server:
         try:
             self.clients[index].send(message.encode())
         except:
-            self.log("Error occured while sending message")
+            self.logger.error("Error occured while sending message", "master-send-message")
             self._close_client(address)
 
     def _broadcast(self, message):
@@ -237,7 +237,7 @@ class Server:
             print("server stop issued", "<start>")
             self.stop()
         except:
-            print("Error occured")
+            self.logger.error("Error occured while starting the server", "master-start")
             self.stop()
 
     def merge(self):

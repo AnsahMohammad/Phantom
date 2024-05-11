@@ -8,7 +8,8 @@ import requests
 class Parser:
     def __init__(self, show_logs=True):
         self.show_logs = show_logs
-        self.log = Logger(self.show_logs, "phantom-parser").log
+        self.logger = Logger(self.show_logs, "phantom-parser")
+        self.log = self.logger.log
 
     def clean_url(self, url):
         parsed = urlparse(url)
@@ -24,7 +25,7 @@ class Parser:
             response.raise_for_status()
             return response.content
         except Exception as e:
-            self.log(f"Failed to fetch {url}: {e}", "Parser")
+            self.logger.error(f"Failed to fetch {url}: {e}", "Parser-fetch")
             return None
 
     def parse(self, url) -> dict:
@@ -39,13 +40,16 @@ class Parser:
         try:
             soup = BeautifulSoup(content, "html.parser")
         except Exception as e:
-            self.log(f"Failed to parse {url}: {e}", "Parser")
+            self.logger.error(f"Failed to parse {url}: {e}", "Parser-parse")
             return {"links": [], "words": "", "url": url, "title": None}
 
         title = soup.title.string if soup.title else None
 
-        text = soup.get_text()
-        words = " ".join(text.split())
+
+        content = [tag.text for tag in soup.find_all(['h1', 'h2', 'h3'])]
+        # text = soup.get_text()
+        # words = " ".join(text.split())
+        words = " ".join(content)
         links = [
             self.clean_url(urljoin(url, link.get("href")))
             for link in soup.find_all("a")
@@ -62,6 +66,7 @@ if __name__ == "__main__":
         "google.com/",
         "m.google.com",
         "https://www.google.co.in/intl/en/about/products?tab=wh",
+        "https://www.ndtv.com/",
     ]
     for site in sites:
         print(parser.parse(site))
