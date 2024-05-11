@@ -32,7 +32,8 @@ class Phantom_Query:
         self.CONTENT_WEIGHT = 1
         self.TITLE_WEIGHT = 3
 
-        self.load(filename)
+        if self.IDF_CONTENT:
+            self.load(filename)
 
         if title_path or self.remote_db:
             self.title_path = title_path
