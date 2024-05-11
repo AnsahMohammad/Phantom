@@ -45,8 +45,11 @@ class Parser:
 
         title = soup.title.string if soup.title else None
 
-        text = soup.get_text()
-        words = " ".join(text.split())
+
+        content = [tag.text for tag in soup.find_all(['h1', 'h2', 'h3'])]
+        # text = soup.get_text()
+        # words = " ".join(text.split())
+        words = " ".join(content)
         links = [
             self.clean_url(urljoin(url, link.get("href")))
             for link in soup.find_all("a")
@@ -63,6 +66,7 @@ if __name__ == "__main__":
         "google.com/",
         "m.google.com",
         "https://www.google.co.in/intl/en/about/products?tab=wh",
+        "https://www.ndtv.com/",
     ]
     for site in sites:
         print(parser.parse(site))
