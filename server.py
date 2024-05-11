@@ -68,15 +68,15 @@ def ai_process():
 
     input_text = request.json.get("input_text", "")
     data = {"inputs": input_text}
-    models = "https://api-inference.huggingface.co/models/google/flan-t5-small", "https://api-inference.huggingface.co/models/facebook/bart-large-cnn", "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
+    models = "google/flan-t5-small", "facebook/bart-large-cnn", "mistralai/Mistral-7B-Instruct-v0.2"
     token = os.environ.get("AI_TOKEN", None)
     headers = {'Authorization': f'Bearer {token}'} if token else {}
     generated_text = None
     try:
+        model = "https://api-inference.huggingface.co/models/" + models[2]
         response = requests.post(
-            models[2], headers=headers, json=data, timeout=10
+            model, headers=headers, json=data, timeout=10
         )
-        print("response: ", response.content.decode("utf-8"))
         response_json = json.loads(response.content.decode("utf-8"))[0]
         generated_text = response_json.get('generated_text', None)
         print("AI response: ", json.dumps(response_json, indent=4))
