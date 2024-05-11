@@ -55,6 +55,23 @@ class Storage:
 
         return visited
 
+    def save_errors(self, errors, origin=None):
+        if self.remote_db:
+            try:
+                data, count = (
+                    self.supabase.table("errors")
+                    .insert({"error": errors})
+                    .execute()
+                )
+            except Exception as e:
+                print(f"\nError inserting record into errors table: {e}\n")
+                return False
+            return True
+
+        with open("errors.json", "a") as f:
+            json.dump(errors, f)
+        return True
+
     def save(self):
         if self.remote_db:
             return

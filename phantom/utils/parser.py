@@ -8,7 +8,8 @@ import requests
 class Parser:
     def __init__(self, show_logs=True):
         self.show_logs = show_logs
-        self.log = Logger(self.show_logs, "phantom-parser").log
+        self.logger = Logger(self.show_logs, "phantom-parser")
+        self.log = self.logger.log
 
     def clean_url(self, url):
         parsed = urlparse(url)
@@ -24,7 +25,7 @@ class Parser:
             response.raise_for_status()
             return response.content
         except Exception as e:
-            self.log(f"Failed to fetch {url}: {e}", "Parser")
+            self.logger.error(f"Failed to fetch {url}: {e}", "Parser-fetch")
             return None
 
     def parse(self, url) -> dict:
@@ -39,7 +40,7 @@ class Parser:
         try:
             soup = BeautifulSoup(content, "html.parser")
         except Exception as e:
-            self.log(f"Failed to parse {url}: {e}", "Parser")
+            self.logger.error(f"Failed to parse {url}: {e}", "Parser-parse")
             return {"links": [], "words": "", "url": url, "title": None}
 
         title = soup.title.string if soup.title else None

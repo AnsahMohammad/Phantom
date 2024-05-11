@@ -91,7 +91,7 @@ class PhantomIndexer:
                     )
                 self.data[doc] = processed_words
             except Exception as e:
-                self.log(f"Error processing {doc}: {e}", "Phantom-Indexer")
+                self.logger.error(f"Error processing {doc}: {e}", "Phantom-Indexer-process")
 
             del words
 
@@ -118,6 +118,7 @@ class PhantomIndexer:
                 remote_db = False
         except Exception as e:
             print(f"Error while creating Supabase client: {e}")
+            self.logger.error(f"Error while creating Supabase client: {e}", "Phantom-Indexer-check_remote")
             remote_db = False
 
         print("Remote database : ", remote_db)
@@ -159,7 +160,7 @@ class PhantomIndexer:
                     "Phantom-Indexer-Loader",
                 )
             except Exception as e:
-                print(f"\nError fetching data from index table: {e}\n")
+                self.logger.error(f"Error fetching data from index table: {e}", "Phantom-Indexer-Loader")
                 if len(data) > 500:
                     return data
                 return None
