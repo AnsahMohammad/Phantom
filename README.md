@@ -89,14 +89,17 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 
 ## Development and Maintanence
 
-### Bump 7+
+### Bump 7
+
+- [ ] Extract background worker sites from env
+- [ ] Replace content with meta data (perhaps?)
+- [ ] TF-idf only on title
+
+### Bump 8+
 
 - [ ] Use better than TF-IDF
-- [ ] Replace content with meta data (perhaps?)
-
 - [ ] Use unified crawler system in master-slave arch
 - [ ] Generalize Storage Class
-- [ ] TF-idf only on title
 
 ### Bump 6
 
