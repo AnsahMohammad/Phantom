@@ -1,3 +1,7 @@
+"""
+Master crawler
+"""
+
 import socket
 import threading
 from ..utils.logger import Logger

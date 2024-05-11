@@ -94,12 +94,16 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 - [ ] Extract background worker sites from env
 - [ ] Replace content with meta data (perhaps?)
 - [ ] TF-idf only on title
-- [ ] Template optimizations
+- [ ] AI support
+- [X] Template optimizations
 
 ### Bump 8+
 
 - [ ] Optimize the deployment
+- [ ] Optimize the user interface
 
+- [ ] Distributed query processing
+- [ ] Use only remote_db
 - [ ] Use better than TF-IDF
 - [ ] Use unified crawler system in master-slave arch
 - [ ] Generalize Storage Class
