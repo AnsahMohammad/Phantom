@@ -91,9 +91,9 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 
 ### Bump 7
 
-- [ ] Extract background worker sites from env
 - [ ] Replace content with meta data (perhaps?)
 - [ ] TF-idf only on title
+- [X] Extract background worker sites from env
 - [X] AI support Beta
 - [X] Template optimizations
 

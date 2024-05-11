@@ -103,6 +103,15 @@
         color: white;
         padding: 3%;
         margin: 1%;
+        position: relative;
+      }
+
+      .disclaimer {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        font-size: 0.8rem;
+        color: grey;
       }
 
       @media (max-width: 600px) {
@@ -168,6 +177,7 @@
     <div class="result">
       <div class="ai_div">
         <h3 class="ai_res">AI Generated Result .:</h3>
+        <div class="disclaimer">AI generated text</div>
       </div>
       {% for item in result %}
       <div class="item">
