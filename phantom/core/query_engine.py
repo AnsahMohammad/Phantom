@@ -126,7 +126,9 @@ class Phantom_Query:
                 title = self.titles[doc] if self.title_table else doc
                 final_results.append((doc, score, title))
             except Exception as e:
-                self.logger.error(f"Error processing document {doc}: {e}", "Query_Engine-query")
+                self.logger.error(
+                    f"Error processing document {doc}: {e}", "Query_Engine-query"
+                )
                 continue
         return final_results
 
@@ -146,7 +148,10 @@ class Phantom_Query:
                 print("Failed to connect to Supabase")
                 remote_db = False
         except Exception as e:
-            self.logger.error(f"Error while creating Supabase client: {e}", "query-engine-check-remote")
+            self.logger.error(
+                f"Error while creating Supabase client: {e}",
+                "query-engine-check-remote",
+            )
             remote_db = False
 
         print("Remote database : ", remote_db)
@@ -194,7 +199,10 @@ class Phantom_Query:
                     "Phantom-Indexer-Loader",
                 )
             except Exception as e:
-                self.logger.error(f"Error fetching data from index table: {e}", "Phantom-Indexer-Loader")
+                self.logger.error(
+                    f"Error fetching data from index table: {e}",
+                    "Phantom-Indexer-Loader",
+                )
                 return False
             return True
 

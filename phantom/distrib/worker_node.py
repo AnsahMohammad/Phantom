@@ -1,3 +1,7 @@
+"""
+Worker crawler nodes
+"""
+
 import socket
 import threading
 from ..utils.logger import Logger

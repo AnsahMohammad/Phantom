@@ -1,6 +1,6 @@
 import threading
 import time
-import random
+import os
 from ..utils.logger import Logger
 from ..utils.storage import Storage
 from collections import deque
@@ -23,6 +23,8 @@ class Phantom:
         self.thread_count = num_threads
         self.show_logs = show_logs
         self.BURNOUT = burnout
+        if not urls:
+            urls = os.environ.get("URLS", "").split(",")
         self.urls = urls
 
         self.len_urls = len(self.urls)

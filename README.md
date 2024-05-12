@@ -89,14 +89,24 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 
 ## Development and Maintanence
 
-### Bump 7+
+### Bump 7
 
+- [X] Replace content with meta data (perhaps?)
+- [X] Extract background worker sites from env
+- [X] AI support Beta
+- [X] Template optimizations
+
+### Bump 8+
+
+- [ ] Optimize the deployment
+- [ ] Optimize the user interface
+
+- [ ] TF-idf only on title
+- [ ] Distributed query processing
+- [ ] Use only remote_db
 - [ ] Use better than TF-IDF
-- [ ] Replace content with meta data (perhaps?)
-
 - [ ] Use unified crawler system in master-slave arch
 - [ ] Generalize Storage Class
-- [ ] TF-idf only on title
 
 ### Bump 6
 
@@ -108,7 +118,7 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 ### Done
 
 - [X] Don't download everytime query engine is started
-- [-] Crawler doesn't follow the schema of remote_db (can't be done)
+- [-] Crawler doesn't follow the schema of remote_db
 - [X] Tracking variables on the server
 - [X] UI Re-org
 - [X] Title TF_IDF

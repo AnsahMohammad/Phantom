@@ -42,6 +42,13 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        width: 50%;
+        margin: 10px;
+      }
+
+      .Home {
+        text-decoration: none;
+        margin-right: 5%;
       }
 
       .Search {
@@ -66,11 +73,6 @@
         color: white;
       }
 
-      .Home {
-        text-decoration: none;
-        margin-right: 5%;
-      }
-
       .result a {
         color: white;
         text-decoration: none;
@@ -92,6 +94,37 @@
         background-color: rgb(50, 50, 50);
       }
 
+      .ai_div {
+        display: none;
+        justify-content: center;
+        align-items: center;
+        border-radius: 5px;
+        background-color: rgb(23, 51, 43);
+        color: white;
+        padding: 3%;
+        margin: 1%;
+        position: relative;
+      }
+
+      .disclaimer {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        font-size: 0.8rem;
+        color: grey;
+        margin: 0.5%;
+      }
+
+      .copyright {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        font-size: 0.8rem;
+        color: grey;
+        margin: 0.5%;
+        transition: 0.3s ease;
+      }
+
       @media (max-width: 600px) {
         .sevillana-regular {
           font-size: 2rem;
@@ -109,6 +142,12 @@
           margin: 5px;
           padding: 5px;
         }
+
+        .ai_div {
+          margin: 20px;
+          padding: 20px;
+          border-radius: 5px;
+        }
       }
 
       @media (max-width: 400px) {
@@ -116,7 +155,7 @@
           flex-direction: column;
           justify-content: flex-start;
         }
-        
+
         .Search {
           width: 250px;
         }
@@ -147,6 +186,10 @@
     </div>
     <hr />
     <div class="result">
+      <div class="ai_div">
+        <h3 class="ai_res">AI Generated Result .:</h3>
+        <div class="disclaimer">AI generated text</div>
+      </div>
       {% for item in result %}
       <div class="item">
         <a href="{{ item[0] }}">
@@ -156,13 +199,53 @@
       </div>
       {% endfor %}
     </div>
+    <div class="copyright">
+      https://github.com/AnsahMohammad/Phantom
+    </div>
   </body>
   <script>
+    function fetchData() {
+      var inputText = document.querySelector(".Search").value;
+
+      fetch("/ai_process", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ input_text: inputText }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          var aiResElement = document.querySelector(".ai_res");
+          var aiDiv = document.querySelector(".ai_div");
+          var disclaimerElement = document.querySelector(".disclaimer");
+          if (aiResElement && aiDiv && disclaimerElement) {
+            if (data.generated_text === "" || data.generated_text === null) {
+              aiDiv.style.display = "none";
+              return;
+            }
+            aiResElement.textContent = data.generated_text;
+            disclaimerElement.textContent = "AI generated text using " + data.model;
+            aiDiv.style.display = "flex";
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          var aiDiv = document.querySelector(".ai_div");
+          if (aiDiv) {
+            aiDiv.style.display = "none";
+          }
+        });
+    }
+
     document
       .getElementById("searchForm")
       .addEventListener("submit", function () {
         document.getElementById("browser").value = navigator.userAgent;
         document.getElementById("device").value = navigator.platform;
       });
+
+    // Fetch the AI response
+    fetchData();
   </script>
 </html>

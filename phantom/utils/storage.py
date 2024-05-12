@@ -63,9 +63,7 @@ class Storage:
         if self.remote_db:
             try:
                 data, count = (
-                    self.supabase.table("errors")
-                    .insert({"error": errors})
-                    .execute()
+                    self.supabase.table("errors").insert({"error": errors}).execute()
                 )
             except Exception as e:
                 print(f"\nError inserting record into errors table: {e}\n")
