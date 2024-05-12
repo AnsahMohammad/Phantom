@@ -102,6 +102,7 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 - [ ] Use only remote_db
 - [ ] Use unified crawler system in master-slave arch
 - [ ] Generalize Storage Class
+- [ ] Optimize the scheduler by storing visited nodes
 
 ### Bump 7
 
@@ -112,15 +113,15 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 
 ### Bump 6
 
-- [-] Extract timestamp and sort accordingly
+- [ ] Extract timestamp and sort accordingly
 - [X] Remote crawler service (use background workers)
 - [X] Analyze the extractable metadata
 - [X] Error Logger to supabase for analytics
 
-### Done
+### Bump 5-
 
 - [X] Don't download everytime query engine is started
-- [-] Crawler doesn't follow the schema of remote_db
+- [ ] Crawler doesn't follow the schema of remote_db
 - [X] Tracking variables on the server
 - [X] UI Re-org
 - [X] Title TF_IDF
