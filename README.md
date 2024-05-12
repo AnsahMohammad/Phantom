@@ -89,24 +89,26 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 
 ## Development and Maintanence
 
+### Bump 8
+
+- [ ] Optimize the deployment
+- [ ] Optimize the user interface
+- [ ] TF-idf only on title
+- [ ] Better similarity on content
+
+### Bump 9+
+
+- [ ] Distributed query processing
+- [ ] Use only remote_db
+- [ ] Use unified crawler system in master-slave arch
+- [ ] Generalize Storage Class
+
 ### Bump 7
 
 - [X] Replace content with meta data (perhaps?)
 - [X] Extract background worker sites from env
 - [X] AI support Beta
 - [X] Template optimizations
-
-### Bump 8+
-
-- [ ] Optimize the deployment
-- [ ] Optimize the user interface
-
-- [ ] TF-idf only on title
-- [ ] Distributed query processing
-- [ ] Use only remote_db
-- [ ] Use better than TF-IDF
-- [ ] Use unified crawler system in master-slave arch
-- [ ] Generalize Storage Class
 
 ### Bump 6
 
