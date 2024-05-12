@@ -38,6 +38,7 @@ def home():
         return render_template("result.html", result=result, input_text=input_text)
     return render_template("home.html", result=result)
 
+
 def analytics():
     if not REMOTE_DB or not tracking:
         return False
@@ -55,6 +56,7 @@ def analytics():
         return False
     return True
 
+
 def process_input(input_text):
     result = engine.query(input_text, count=20)
     analytics()
@@ -68,18 +70,20 @@ def ai_process():
 
     input_text = request.json.get("input_text", "")
     data = {"inputs": input_text}
-    models = "google/flan-t5-small", "facebook/bart-large-cnn", "mistralai/Mistral-7B-Instruct-v0.2"
+    models = (
+        "google/flan-t5-small",
+        "facebook/bart-large-cnn",
+        "mistralai/Mistral-7B-Instruct-v0.2",
+    )
     token = os.environ.get("AI_TOKEN", None)
-    headers = {'Authorization': f'Bearer {token}'} if token else {}
+    headers = {"Authorization": f"Bearer {token}"} if token else {}
     generated_text = None
     model = models[2]
     model_url = "https://api-inference.huggingface.co/models/" + model
     try:
-        response = requests.post(
-            model_url, headers=headers, json=data, timeout=10
-        )
+        response = requests.post(model_url, headers=headers, json=data, timeout=10)
         response_json = json.loads(response.content.decode("utf-8"))[0]
-        generated_text = response_json.get('generated_text', None)
+        generated_text = response_json.get("generated_text", None)
         print("AI response: ", json.dumps(response_json, indent=4))
 
     except Exception as e:
@@ -87,6 +91,7 @@ def ai_process():
         return jsonify(generated_text=None, model=model), 500
 
     return jsonify(generated_text=generated_text, model=model), 200
+
 
 @app.route("/health", methods=["GET"])
 def health_check():

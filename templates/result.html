@@ -115,6 +115,16 @@
         margin: 0.5%;
       }
 
+      .copyright {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        font-size: 0.8rem;
+        color: grey;
+        margin: 0.5%;
+        transition: 0.3s ease;
+      }
+
       @media (max-width: 600px) {
         .sevillana-regular {
           font-size: 2rem;
@@ -188,6 +198,9 @@
         <div class="url">{{ item[0] }}</div>
       </div>
       {% endfor %}
+    </div>
+    <div class="copyright">
+      https://github.com/AnsahMohammad/Phantom
     </div>
   </body>
   <script>

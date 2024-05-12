@@ -1,6 +1,7 @@
 import time
 from .storage import Storage
 
+
 class Logger:
     def __init__(self, show_logs=False, author=None):
         self.show_logs = show_logs
@@ -20,7 +21,7 @@ class Logger:
         self.logs.append(log_)
         if self.show_logs:
             print(log_)
-    
+
     def error(self, content, origin=None):
         self.log(content, origin, type="Error")
         self.storage.save_errors(content, origin)

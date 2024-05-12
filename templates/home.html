@@ -53,6 +53,16 @@
         height: 40px;
       }
 
+      .copyright {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        font-size: 0.8rem;
+        color: grey;
+        margin: 0.5%;
+        transition: 0.3s ease;
+      }
+
       @media (max-width: 600px) {
         h1 {
           font-size: 3rem;
@@ -65,49 +75,59 @@
         .sevillana-regular {
           font-size: 5rem;
         }
-      }      
+      }
 
       @media (max-width: 300px) {
-    h1 {
-      font-size: 2rem;
-    }
+        h1 {
+          font-size: 2rem;
+        }
 
-    .Search {
-      width: 150px;
-    }
+        .Search {
+          width: 150px;
+        }
 
-    .sevillana-regular {
-      font-size: 4rem;
-    }
+        .sevillana-regular {
+          font-size: 4rem;
+        }
 
-    .Form {
-      flex-direction: column;
-      align-items: flex-start;
-    }
+        .Form {
+          flex-direction: column;
+          align-items: flex-start;
+        }
 
-    .Enter {
-      margin-top: 1rem;
-    }
-  }
-
+        .Enter {
+          margin-top: 1rem;
+        }
+      }
     </style>
   </head>
   <body>
     <div class="main">
       <h1 class="Home sevillana-regular">Phantom</h1>
       <form id="searchForm" method="GET" action="/" class="Form">
-        <input type="text" name="q" class="Search" placeholder="Search Query" value="{{ input_text }}" />
+        <input
+          type="text"
+          name="q"
+          class="Search"
+          placeholder="Search Query"
+          value="{{ input_text }}"
+        />
         <input type="hidden" id="browser" name="browser" />
         <input type="hidden" id="device" name="device" />
         <input type="submit" value="Search" class="Enter" />
       </form>
     </div>
 
+    <div class="copyright">
+      https://github.com/AnsahMohammad/Phantom
+    </div>
   </body>
   <script>
-    document.getElementById('searchForm').addEventListener('submit', function() {
-      document.getElementById('browser').value = navigator.userAgent;
-      document.getElementById('device').value = navigator.platform;
-    });
+    document
+      .getElementById("searchForm")
+      .addEventListener("submit", function () {
+        document.getElementById("browser").value = navigator.userAgent;
+        document.getElementById("device").value = navigator.platform;
+      });
   </script>
 </html>
