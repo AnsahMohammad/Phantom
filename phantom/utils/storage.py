@@ -1,6 +1,7 @@
 import os
 from supabase import create_client, Client
 import json
+# from ..utils.logger import Logger
 
 
 class Storage:
@@ -80,3 +81,77 @@ class Storage:
         table_name = self.table_name + ".json"
         with open(table_name, "w") as f:
             json.dump(self.data, f)
+
+class Database:
+    def __init__(self):
+        self.state = True
+        showlogs = os.environ.get("SHOW_LOGS", "1") == "1"
+        self.CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 500))
+        self.CHUNK_LIMIT = int(os.environ.get("CHUNK_LIMIT", 5000))
+        self.state = self.check_remote()
+        print("DB Initialized : ", self.state)
+
+    def check_remote(self):
+        remote_db = True
+
+        self.db_url = os.environ.get("SUPABASE_URL", None)
+        self.db_key = os.environ.get("SUPABASE_KEY", None)
+        try:
+            self.supabase = create_client(self.db_url, self.db_key)
+            if not self.supabase:
+                print("Failed to connect to Supabase")
+                remote_db = False
+        except Exception as e:
+            print(f"Error while creating Supabase client: {e}")
+            print(
+                f"Error while creating Supabase client: {e}",
+                "Phantom-Indexer-check_remote",
+            )
+            remote_db = False
+
+        return remote_db
+    
+    def load(self, table, key="url", val="content", START=0, LIMIT=None):
+        
+        self.CHUNK_LIMIT = LIMIT if LIMIT else self.CHUNK_LIMIT
+        start = START
+        end = self.CHUNK_SIZE - 1
+        data = {}
+        try:
+            print("Fetching data from remote DB")
+            while True:
+                response = (
+                    self.supabase.table(table)
+                    .select(key, val)
+                    .range(start, end)
+                    .execute()
+                )
+                if not response.data:
+                    break
+                for record in response.data:
+                    data[record[key]] = record[val]
+
+                start += self.CHUNK_SIZE
+                end += self.CHUNK_SIZE
+
+                print(
+                    f"Data fetched from DB: {len(data)}"
+                )
+
+                if len(data) >= self.CHUNK_LIMIT:
+                    print("CHUNK limit reached")
+                    break
+
+            print(
+                f"Data fetched from remote DB: {len(data)}"
+            )
+
+        except Exception as e:
+            print(
+                f"Error fetching data from index table: {e}"
+            )
+            if len(data) >= self.CHUNK_SIZE:
+                return data
+            return None
+
+        return data
