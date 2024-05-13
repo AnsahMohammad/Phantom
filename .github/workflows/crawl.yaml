@@ -21,13 +21,16 @@ jobs:
         source .env/bin/activate
         pip install -r requirements.txt
 
-    - name: Test crawler and indexer
+    - name: Test crawler and indexer\
+      env:
+        SAVE_CRAWLS: 0
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        CHUNK_SIZE: 50
+        CHUNK_LIMIT: 50
       run: |
         source .env/bin/activate
         python3 -m phantom.main --num_threads 2 --urls "https://github.com/AnsahMohammad" "https://github.com/AnsahMohammad" --sleep 2
-
-        python3 -m nltk.downloader stopwords
-        python3 -m nltk.downloader punkt
 
         python3 -m phantom.core.indexer
 

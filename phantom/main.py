@@ -25,13 +25,13 @@ def main(num_threads, urls, show_logs, print_logs, sleep):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the Phantom engine.")
-    parser.add_argument("--num_threads", type=int, default=8, help="Number of threads.")
+    parser.add_argument("--num_threads", type=int, default=2, help="Number of threads.")
     parser.add_argument("--urls", type=str, nargs="+", help="List of URLs.")
     parser.add_argument(
         "--show_logs", type=bool, default=True, help="Whether to show logs."
     )
     parser.add_argument(
-        "--print_logs", type=bool, default=True, help="Whether to print logs."
+        "--print_logs", type=bool, default=False, help="Whether to print logs."
     )
     parser.add_argument("--sleep", type=int, default=300, help="Sleep time in seconds.")
 

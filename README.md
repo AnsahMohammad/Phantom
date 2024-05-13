@@ -89,19 +89,22 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 
 ## Development and Maintanence
 
-### Bump 8
-
-- [ ] Optimize the deployment
-- [ ] Optimize the user interface
-- [ ] TF-idf only on title
-- [ ] Better similarity on content
-
 ### Bump 9+
 
+- [ ] TF-idf only on title
+- [ ] Better similarity on content
 - [ ] Distributed query processing
-- [ ] Use only remote_db
 - [ ] Use unified crawler system in master-slave arch
 - [ ] Generalize Storage Class
+- [ ] Optimize the scheduler by storing visited nodes
+
+### Bump 8
+
+- [X] Optimize the deployment
+- [X] Remove the nltk processing
+- [X] Refactor the codebase
+- [X] Migrate from local_db to cloud Phase-1
+- [X] Optimize the user interface
 
 ### Bump 7
 
@@ -112,15 +115,15 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 
 ### Bump 6
 
-- [-] Extract timestamp and sort accordingly
+- [ ] Extract timestamp and sort accordingly
 - [X] Remote crawler service (use background workers)
 - [X] Analyze the extractable metadata
 - [X] Error Logger to supabase for analytics
 
-### Done
+### Bump 5-
 
 - [X] Don't download everytime query engine is started
-- [-] Crawler doesn't follow the schema of remote_db
+- [ ] Crawler doesn't follow the schema of remote_db
 - [X] Tracking variables on the server
 - [X] UI Re-org
 - [X] Title TF_IDF

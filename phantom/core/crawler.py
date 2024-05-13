@@ -27,6 +27,8 @@ class Phantom:
             urls = os.environ.get("URLS", "").split(",")
         self.urls = urls
 
+        self.save_crawls = int(os.environ.get("SAVE_CRAWLS", 1))
+
         self.len_urls = len(self.urls)
         self.start_time = time.time()
         self.url = urls[0]
@@ -150,9 +152,12 @@ class Phantom:
         # cleaning function
         self.stats()
 
-        self.storage.save()
-        self.title_storage.save()
-        self.log("Saved the indices", "Phantom")
+        if self.save_crawls:
+            self.storage.save()
+            self.title_storage.save()
+            self.log("Saved the indices", "Phantom")
+        else:
+            self.log("Indices not saved", "Phantom")
 
         if self.print_logs:
             self.logger.save()
