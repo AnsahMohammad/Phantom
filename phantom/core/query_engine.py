@@ -1,12 +1,9 @@
 import json
 from collections import Counter, defaultdict
 from ..utils.logger import Logger
+from ..utils.storage import Database
 import os
-from supabase import create_client, Client
 
-from nltk.corpus import stopwords
-from nltk.stem import PorterStemmer
-from nltk.tokenize import word_tokenize
 import string
 
 
@@ -17,7 +14,9 @@ class Phantom_Query:
         self.title_table = False
         self.logger = Logger(self.showlogs)
         self.log = self.logger.log
-        self.remote_db = self.check_remote()
+
+        db = Database()
+        self.remote_db = db.state
 
         self.IDF_CONTENT = os.environ.get("IDF_CONTENT", "1") == "1"
         self.IDF_TITLE = os.environ.get("IDF_TITLE", "1") == "1"
@@ -47,8 +46,6 @@ class Phantom_Query:
 
         self.log("Query Engine Ready", "Query_Engine")
 
-        self.stemmer = PorterStemmer()
-        self.stop_words = set(stopwords.words("english"))
 
     def load(self, filename):
         if self.IDF_CONTENT:
@@ -75,11 +72,10 @@ class Phantom_Query:
 
         processed_query = []
         try:
-            words = word_tokenize(query)
+            words = query.split()
             for word in words:
                 word = word.lower().translate(str.maketrans("", "", string.punctuation))
-                stemmed_word = self.stemmer.stem(word)
-                processed_query.append(stemmed_word)
+                processed_query.append(word)
 
         except Exception as e:
             self.logger.error(f"Error processing query: {e}", "Query_Engine-query")
@@ -137,27 +133,6 @@ class Phantom_Query:
         while True:
             query = input("Enter the query : ")
             print(self.query(query))
-
-    def check_remote(self):
-        remote_db = True
-
-        self.db_url = os.environ.get("SUPABASE_URL", None)
-        self.db_key = os.environ.get("SUPABASE_KEY", None)
-        try:
-            self.supabase = create_client(self.db_url, self.db_key)
-            if not self.supabase:
-                print("Failed to connect to Supabase")
-                remote_db = False
-        except Exception as e:
-            self.logger.error(
-                f"Error while creating Supabase client: {e}",
-                "query-engine-check-remote",
-            )
-            remote_db = False
-
-        print("Remote database : ", remote_db)
-        print("DB Ready")
-        return remote_db
 
     def load_titles(self):
         # load the titles from index.json

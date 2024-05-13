@@ -1,9 +1,6 @@
 from collections import Counter
 import math
 import json
-from nltk.corpus import stopwords
-from nltk.stem import PorterStemmer
-from nltk.tokenize import word_tokenize
 import string
 from ..utils.logger import Logger
 import os
@@ -86,22 +83,17 @@ class Model:
 
     def preprocess(self, data:dict) -> dict:
         self.log("Processing Data", "Model-preprocessor")
-        stemmer = PorterStemmer()
-        stop_words = set(stopwords.words("english"))
         count = 0
         processed_data = {}
         for doc, words in data.items():
             count += 1
             processed_words = []
             try:
-                words = word_tokenize(words)
+                words = words.split()
                 for word in words:
-                    word = word.lower().translate(
-                        str.maketrans("", "", string.punctuation)
-                    )
-                    if word not in stop_words and len(word) < 30:
-                        stemmed_word = stemmer.stem(word)
-                        processed_words.append(stemmed_word)
+                    word = word.lower().translate(str.maketrans("", "", string.punctuation))
+                    if len(word) < 30:
+                        processed_words.append(word)
                 if count % self.CHUNK_SIZE == 0:  # Log status
                     self.log(
                         f"Processed {round((count/self.documents)*100,2)}% documents",

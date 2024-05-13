@@ -91,15 +91,17 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 
 ### Bump 8
 
-- [ ] Optimize the deployment
-- [ ] Optimize the user interface
-- [ ] TF-idf only on title
-- [ ] Better similarity on content
+- [X] Optimize the deployment
+- [ ] Remove the nltk processing
+- [X] Refactor the codebase
+- [X] Migrate from local_db to cloud Phase-1
+- [X] Optimize the user interface
 
 ### Bump 9+
 
+- [ ] TF-idf only on title
+- [ ] Better similarity on content
 - [ ] Distributed query processing
-- [ ] Use only remote_db
 - [ ] Use unified crawler system in master-slave arch
 - [ ] Generalize Storage Class
 - [ ] Optimize the scheduler by storing visited nodes
