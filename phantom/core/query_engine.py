@@ -29,8 +29,8 @@ class Phantom_Query:
             "Query_Engine",
         )
 
-        self.CONTENT_WEIGHT = 1
-        self.TITLE_WEIGHT = 3
+        self.CONTENT_WEIGHT = int(os.environ.get("CONTENT_WEIGHT", 1))
+        self.TITLE_WEIGHT = int(os.environ.get("TITLE_WEIGHT", 2))
 
         self.data = {}
         self.load(filename)
@@ -53,8 +53,8 @@ class Phantom_Query:
     def load(self, filename):
         if self.IDF_CONTENT:
             with open(filename + ".json", "r") as f:
-                self.data = json.load(f)
-                # self.tf = self.data["tf"]
+                loaded_data = json.load(f)
+                self.data = loaded_data['data']
                 self.idf = self.data["idf"]
                 self.tfidf = self.data["tfidf"]
             self.lookup = set(self.idf.keys())
@@ -62,7 +62,8 @@ class Phantom_Query:
         if self.IDF_TITLE:
             self.t_data = {}
             with open("title_" + filename + ".json", "r") as f:
-                self.t_data = json.load(f)
+                loaded_data = json.load(f)
+                self.t_data = loaded_data['data']
             self.t_idf = self.t_data["idf"]
             self.t_tfidf = self.t_data["tfidf"]
             self.t_lookup = set(self.t_idf.keys())

@@ -23,9 +23,6 @@ class PhantomIndexer:
         self.showlogs = os.environ.get("SHOW_LOGS", "1") == "1"
         self.logger = Logger(self.showlogs, "Indexer")
         self.log = self.logger.log
-        # self.remote_db = self.check_remote()
-        # self.CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 500))
-        # self.CHUNK_LIMIT = int(os.environ.get("CHUNK_LIMIT", 10000))
 
         db = Database()
         if not db.state:
@@ -33,15 +30,6 @@ class PhantomIndexer:
             return
 
         self.log("indexer init", "Phantom-Indexer")
-        
-        # self.data = self.load(key=key, val=val)
-        # self.remote_data = self.data.copy()
-        # if not self.data:
-        #     # if remote cause error, load from local
-        #     self.remote_db = False
-        #     self.data = self.load()
-
-        # self.documents = len(self.data.keys())
 
     def process(self, model="tf_idf", key="url", val="content"):
 
@@ -58,12 +46,6 @@ class PhantomIndexer:
             return
             self.model = word2vec(self.in_file, self.out_file)
             self.model.train_word2vec()
-
-
-        # for doc in self.tfidf:
-        #     self.tfidf[doc] = dict(
-        #         sorted(self.tfidf[doc].items(), key=lambda x: x[1], reverse=True)
-        #     )
 
         return True
 
