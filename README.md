@@ -89,14 +89,6 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 
 ## Development and Maintanence
 
-### Bump 8
-
-- [X] Optimize the deployment
-- [ ] Remove the nltk processing
-- [X] Refactor the codebase
-- [X] Migrate from local_db to cloud Phase-1
-- [X] Optimize the user interface
-
 ### Bump 9+
 
 - [ ] TF-idf only on title
@@ -105,6 +97,14 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 - [ ] Use unified crawler system in master-slave arch
 - [ ] Generalize Storage Class
 - [ ] Optimize the scheduler by storing visited nodes
+
+### Bump 8
+
+- [X] Optimize the deployment
+- [X] Remove the nltk processing
+- [X] Refactor the codebase
+- [X] Migrate from local_db to cloud Phase-1
+- [X] Optimize the user interface
 
 ### Bump 7
 
