@@ -16,6 +16,10 @@ jobs:
         python-version: 3.8
 
     - name: Install dependencies & build
+      env:
+          SAVE_CRAWLS: 0
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
       run: |
         python -m venv .env
         source .env/bin/activate
