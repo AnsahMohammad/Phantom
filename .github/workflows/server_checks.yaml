@@ -20,6 +20,8 @@ jobs:
           SAVE_CRAWLS: 0
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          CHUNK_SIZE: 50
+          CHUNK_LIMIT: 50
       run: |
         python -m venv .env
         source .env/bin/activate
