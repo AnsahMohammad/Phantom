@@ -89,13 +89,16 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 
 ## Development and Maintanence
 
-### Bump 9+
+### Bump 9
 
 - [ ] TF-idf only on title
 - [ ] Better similarity on content
-- [ ] Distributed query processing
 - [ ] Use unified crawler system in master-slave arch
 - [ ] Generalize Storage Class
+
+### Bump 10+
+
+- [ ] Distributed query processing
 - [ ] Optimize the scheduler by storing visited nodes
 
 ### Bump 8
