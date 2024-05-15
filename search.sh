@@ -9,5 +9,4 @@ python3 -m nltk.downloader punkt
 
 echo "running the server"
 
-# python3 phantom.py
 gunicorn -w 1 server:app

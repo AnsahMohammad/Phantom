@@ -5,9 +5,6 @@ source .env/bin/activate
 pip install -r requirements.txt
 clear
 echo "Installation done"
-# sleep 2
-# python3 -m phantom.core.indexer
-# echo "Phantom Indexing done"
 sleep 2
 # clear
 python3 -m phantom.core.query_engine

@@ -17,10 +17,7 @@ else
 fi
 
 echo "crawling done"
-# clear
 echo "Installation done"
-ls
 python3 -m phantom.core.indexer
 echo "Phantom Processing done"
-# clear
 echo "Build done"
