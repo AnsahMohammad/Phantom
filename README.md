@@ -99,6 +99,8 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 
 - [ ] Distributed query processing
 - [ ] Caching locally
+- [ ] Consistency in logs
+- [ ] Error handling
 - [ ] Optimize the scheduler by storing visited nodes
 - [ ] Use unified crawler system in master-slave arch
 
