@@ -1,7 +1,11 @@
 import json
-from collections import Counter, defaultdict
+from collections import defaultdict
 from ..utils.logger import Logger
 from ..utils.storage import Database
+
+from .models.tf_idf import TFIDF_Processor
+from .models.word2vec import Word2Vec_Processor
+
 import os
 
 import string
@@ -46,77 +50,38 @@ class Phantom_Query:
 
         self.log("Query Engine Ready", "Query_Engine")
 
-
     def load(self, filename):
         if self.IDF_CONTENT:
-            with open(filename + ".json", "r") as f:
-                loaded_data = json.load(f)
-                self.data = loaded_data['data']
-                self.idf = self.data["idf"]
-                self.tfidf = self.data["tfidf"]
-            self.lookup = set(self.idf.keys())
+            # content uses word2vec
+            self.content_processor = Word2Vec_Processor()
+            self.content_processor.load(filename)
 
         if self.IDF_TITLE:
-            self.t_data = {}
-            with open("title_" + filename + ".json", "r") as f:
-                loaded_data = json.load(f)
-                self.t_data = loaded_data['data']
-            self.t_idf = self.t_data["idf"]
-            self.t_tfidf = self.t_data["tfidf"]
-            self.t_lookup = set(self.t_idf.keys())
+            # title uses tfidf
+            self.title_processor = TFIDF_Processor()
+            title_name = "title_" + filename
+            self.title_processor.load(title_name)
 
     def query(self, query, count=10):
         self.log(f"Query received : {query}", "Query_Engine")
 
-        # Process the query
-
-        processed_query = []
-        try:
-            words = query.split()
-            for word in words:
-                word = word.lower().translate(str.maketrans("", "", string.punctuation))
-                processed_query.append(word)
-
-        except Exception as e:
-            self.logger.error(f"Error processing query: {e}", "Query_Engine-query")
-
-        query = processed_query
-        query_len = len(query)
-
         scores = defaultdict(float)
 
         if self.IDF_CONTENT:
-            query = [term for term in query if term in self.lookup]
-            query_freq = Counter(query)
-            query_tfidf = {
-                term: (query_freq[term] / query_len) * self.idf.get(term, 0.0)
-                for term in query
-            }
-            self.log(f"Title TF-idf of query : {query_tfidf}", "Query_Engine")
-
-            for doc, tfidf in self.tfidf.items():
-                score = sum(tfidf[term] * query_tfidf.get(term, 0.0) for term in tfidf)
-                scores[doc] = self.CONTENT_WEIGHT * score
+            query_res = self.content_processor.query(query, count)
+            for doc, score in query_res:
+                scores[doc] += self.CONTENT_WEIGHT * score
 
         if self.IDF_TITLE:
-            query = processed_query
-            query = [term for term in query if term in self.t_lookup]
-            query_freq = Counter(query)
-            query_t_tfidf = {
-                term: (query_freq[term] / query_len) * self.t_idf.get(term, 0.0)
-                for term in query
-            }
-            self.log(f"TF-idf of query : {query_t_tfidf}", "Query_Engine")
-
-            for doc, tfidf in self.t_tfidf.items():
-                score = sum(
-                    tfidf[term] * query_t_tfidf.get(term, 0.0) for term in tfidf
-                )
+            # title processed on tf-idf
+            query_res = self.title_processor.query(query, count)
+            for doc, score in query_res:
                 scores[doc] += self.TITLE_WEIGHT * score
 
         ranked_docs = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-        self.log(f"Ranked documents : {ranked_docs[:count]}", "Query_Engine")
+        self.log(f"Ranked documents : {ranked_docs}", "Query_Engine")
 
+        # Return the top n results
         final_results = []
         for doc, score in ranked_docs[:count]:
             try:

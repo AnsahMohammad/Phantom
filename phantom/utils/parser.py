@@ -1,7 +1,6 @@
 from bs4 import BeautifulSoup
 from .logger import Logger
 from urllib.parse import urlparse, urljoin, urlunparse
-import json
 import requests
 
 

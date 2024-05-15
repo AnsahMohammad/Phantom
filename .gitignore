@@ -168,3 +168,4 @@ titles.json
 .archive
 *json
 dev.sh
+*.model
