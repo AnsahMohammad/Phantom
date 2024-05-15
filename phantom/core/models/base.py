@@ -54,9 +54,7 @@ class Model:
                     )
                 processed_data[doc] = processed_words
             except Exception as e:
-                self.logger.error(
-                    f"Error processing {doc}: {e}", "model-preprocess"
-                )
+                self.logger.error(f"Error processing {doc}: {e}", "model-preprocess")
                 continue
 
             del words
@@ -72,7 +70,9 @@ class Model:
             with open(self.out_file + ".json", "w") as f:
                 json.dump(data, f)
         except:
-            self.logger.error("Error while saving", )
+            self.logger.error(
+                "Error while saving",
+            )
 
 
 class Processor:
@@ -82,7 +82,7 @@ class Processor:
 
         self.log("Processor Ready", "Model_processor")
 
-    def preprocess(self, data:str):
+    def preprocess(self, data: str):
         processed_query = []
         try:
             words = data.split()
@@ -92,7 +92,7 @@ class Processor:
 
         except Exception as e:
             self.logger.error(f"Error processing query: {e}", "QEngine-pre-process")
-        
+
         return processed_query
 
     def load(self, filename):
@@ -103,7 +103,5 @@ class Processor:
 
         return model, data
 
-
     def query(self):
         self.log("Processing Data", "Model-preprocessor")
-

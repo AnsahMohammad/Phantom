@@ -1,5 +1,5 @@
 import json
-from collections import Counter, defaultdict
+from collections import defaultdict
 from ..utils.logger import Logger
 from ..utils.storage import Database
 
@@ -77,7 +77,7 @@ class Phantom_Query:
             query_res = self.title_processor.query(query, count)
             for doc, score in query_res:
                 scores[doc] += self.TITLE_WEIGHT * score
-            
+
         ranked_docs = sorted(scores.items(), key=lambda x: x[1], reverse=True)
         self.log(f"Ranked documents : {ranked_docs}", "Query_Engine")
 
@@ -150,6 +150,7 @@ class Phantom_Query:
         else:
             if not self.title_path:
                 return False
+
 
 if __name__ == "__main__":
     query_engine = Phantom_Query("indexed", title_path="titles.json")

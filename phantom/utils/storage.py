@@ -1,5 +1,5 @@
 import os
-from supabase import create_client, Client
+from supabase import create_client
 import json
 
 # from ..utils.logger import Logger

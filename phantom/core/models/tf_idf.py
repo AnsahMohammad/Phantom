@@ -4,6 +4,7 @@ from collections import Counter, defaultdict
 import math
 import json
 
+
 class Tf_idf(Model):
     def __init__(self, filename="index", out="indexed", key="url", val="content"):
         super().__init__(filename, out, key, val)
@@ -51,6 +52,7 @@ class Tf_idf(Model):
             json.dump({"model": "tf_idf", "data": data}, f)
         self.log("Data Saved", "Phantom-Indexer-tf_idf")
 
+
 class TFIDF_Processor(Processor):
     def __init__(self):
         super().__init__()
@@ -67,13 +69,13 @@ class TFIDF_Processor(Processor):
         self.lookup = set(self.idf.keys())
         self.log("Data Loaded", "tf_idf_processor")
 
-    def query(self, query, count = 10):
+    def query(self, query, count=10):
         super().query()
         query = self.preprocess(query)
         query = [term for term in query if term in self.lookup]
         query_freq = Counter(query)
         query_tfidf = {
-            term: (query_freq[term] /  len(query)) * self.idf.get(term, 0.0)
+            term: (query_freq[term] / len(query)) * self.idf.get(term, 0.0)
             for term in query
         }
         self.log("Query processed", "tf-idf-processor-query")
@@ -87,5 +89,3 @@ class TFIDF_Processor(Processor):
         top_n_scores = sorted_scores[:count]
         # tuple of [(doc, score),...]
         return top_n_scores
-
-

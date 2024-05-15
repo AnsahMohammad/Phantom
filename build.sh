@@ -19,8 +19,6 @@ fi
 echo "crawling done"
 # clear
 echo "Installation done"
-# python3 -m nltk.downloader stopwords
-# python3 -m nltk.downloader punkt
 ls
 python3 -m phantom.core.indexer
 echo "Phantom Processing done"

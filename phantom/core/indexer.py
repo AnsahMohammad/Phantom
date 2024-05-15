@@ -1,15 +1,10 @@
 import json
-import string
 from ..utils.logger import Logger
 import os
 from ..utils.storage import Database
 
 from .models.tf_idf import Tf_idf
 from .models.word2vec import Word2vec
-
-
-# nltk.download('punkt')
-# nltk.download('stopwords')
 
 
 class PhantomIndexer:
@@ -61,6 +56,7 @@ class PhantomIndexer:
         with open(filename + ".json", "w") as f:
             json.dump(data, f)
         self.log(f"URL:Title mapping saved to {filename}.json", "Phantom-Indexer")
+
 
 IDF_CONTENT = os.environ.get("IDF_CONTENT", "1") == "1"
 IDF_TITLE = os.environ.get("IDF_TITLE", "1") == "1"

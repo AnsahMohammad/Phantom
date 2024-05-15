@@ -5,6 +5,7 @@ from gensim.models import Word2Vec
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
+
 class Word2vec(Model):
     def __init__(self, filename="index", out="indexed", key="url", val="content"):
         super().__init__(filename, out, key, val)
@@ -32,7 +33,11 @@ class Word2vec(Model):
             docs = self.data.keys()
             document_embeddings = []
             for doc_tokens in sentences:
-                vectors = [self.model.wv[token] for token in doc_tokens if token in self.model.wv]
+                vectors = [
+                    self.model.wv[token]
+                    for token in doc_tokens
+                    if token in self.model.wv
+                ]
                 if vectors:
                     doc_vector = np.mean(vectors, axis=0)
                 else:
@@ -62,7 +67,7 @@ class Word2Vec_Processor(Processor):
         self.model = Word2Vec.load(filename + ".model")
         self.lookup = set(self.model.wv.key_to_index)
         self.log("Word2Vec model loaded", "word2vec_processor-load")
-        
+
         self.document_embedding = data["embeddings"]
         self.docs = data["docs"]
         self.log("Document embeddings loaded", "word2vec_processor-load")
@@ -76,7 +81,10 @@ class Word2Vec_Processor(Processor):
             print("None of the words in the query are in the model's vocabulary.")
             return [(doc, -1) for doc in self.docs[:count]]
 
-        query_vector = np.mean([self.model.wv[token] for token in query_tokens if token in self.model.wv], axis=0)
+        query_vector = np.mean(
+            [self.model.wv[token] for token in query_tokens if token in self.model.wv],
+            axis=0,
+        )
         self.log("Query processed", "word2vec-processor-query")
         similarities = cosine_similarity([query_vector], self.document_embedding)
         top_n_indices = np.argsort(similarities[0])[-count:]
@@ -84,4 +92,3 @@ class Word2Vec_Processor(Processor):
         top_n_similar_docs.sort(key=lambda x: x[1], reverse=True)
         # tuple of [(doc, score),...]
         return top_n_similar_docs
-
