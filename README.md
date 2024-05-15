@@ -91,15 +91,16 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 
 ### Bump 9
 
-- [ ] TF-idf only on title
-- [ ] Better similarity on content
-- [ ] Use unified crawler system in master-slave arch
-- [ ] Generalize Storage Class
+- [X] TF-idf only on title
+- [X] Better similarity measure on content
+- [X] Generalize Storage Class
 
 ### Bump 10+
 
 - [ ] Distributed query processing
+- [ ] Caching locally
 - [ ] Optimize the scheduler by storing visited nodes
+- [ ] Use unified crawler system in master-slave arch
 
 ### Bump 8
 

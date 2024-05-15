@@ -1,6 +1,7 @@
 import os
 from supabase import create_client, Client
 import json
+
 # from ..utils.logger import Logger
 
 
@@ -82,6 +83,7 @@ class Storage:
         with open(table_name, "w") as f:
             json.dump(self.data, f)
 
+
 class Database:
     def __init__(self):
         self.state = True
@@ -110,9 +112,9 @@ class Database:
             remote_db = False
 
         return remote_db
-    
+
     def load(self, table, key="url", val="content", START=0, LIMIT=None):
-        
+
         self.CHUNK_LIMIT = LIMIT if LIMIT else self.CHUNK_LIMIT
         start = START
         end = self.CHUNK_SIZE - 1
@@ -134,22 +136,16 @@ class Database:
                 start += self.CHUNK_SIZE
                 end += self.CHUNK_SIZE
 
-                print(
-                    f"Data fetched from DB: {len(data)}"
-                )
+                print(f"Data fetched from DB: {len(data)}")
 
                 if len(data) >= self.CHUNK_LIMIT:
                     print("CHUNK limit reached")
                     break
 
-            print(
-                f"Data fetched from remote DB: {len(data)}"
-            )
+            print(f"Data fetched from remote DB: {len(data)}")
 
         except Exception as e:
-            print(
-                f"Error fetching data from index table: {e}"
-            )
+            print(f"Error fetching data from index table: {e}")
             if len(data) >= self.CHUNK_SIZE:
                 return data
             return None

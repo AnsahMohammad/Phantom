@@ -6,14 +6,16 @@ from ..utils.logger import Logger
 import os
 from supabase import create_client, Client
 from ..utils.storage import Database
+from gensim.models import Word2Vec
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
 
 # nltk.download('punkt')
 # nltk.download('stopwords')
 
 
 class PhantomIndexer:
-    def __init__(
-        self, filename="index", out="indexed") -> None:
+    def __init__(self, filename="index", out="indexed") -> None:
         self.in_file = filename
         self.out_file = out
 
@@ -39,15 +41,19 @@ class PhantomIndexer:
 
             tfidf = self.model.calculate_tfidf()
             idf = self.model.idf
-        else:
-            return
+        elif model == "word2vec":
             self.model = word2vec(self.in_file, self.out_file)
             self.model.train_word2vec()
+        else:
+            self.log("Invalid model", "Phantom-Indexer")
+            return False
 
         return True
 
     def save(self):
         self.model.save()
+
+        # self.model.test("water is very important")
         self.log("Data Saved", "Phantom-Indexer")
 
     def save_titles(self, filename="titles"):
@@ -81,7 +87,7 @@ class Model:
         self.documents = len(self.data.keys())
         self.log("data pre-processed")
 
-    def preprocess(self, data:dict) -> dict:
+    def preprocess(self, data: dict) -> dict:
         self.log("Processing Data", "Model-preprocessor")
         count = 0
         processed_data = {}
@@ -91,7 +97,9 @@ class Model:
             try:
                 words = words.split()
                 for word in words:
-                    word = word.lower().translate(str.maketrans("", "", string.punctuation))
+                    word = word.lower().translate(
+                        str.maketrans("", "", string.punctuation)
+                    )
                     if len(word) < 30:
                         processed_words.append(word)
                 if count % self.CHUNK_SIZE == 0:  # Log status
@@ -111,9 +119,13 @@ class Model:
         self.log("Data Processed", "Phantom-Indexer")
         return processed_data
 
+    def test(self, a="0"):
+        pass
+
     def save(self, data):
         with open(self.out_file + ".json", "w") as f:
             json.dump(data, f)
+
 
 class tf_idf(Model):
     def __init__(self, filename="index", out="indexed", key="url", val="content"):
@@ -130,7 +142,7 @@ class tf_idf(Model):
             for i in tf_text:
                 tf_text[i] = tf_text[i] / float(len(text))
             tf[doc] = tf_text
-        
+
         return tf
 
     def calculate_idf(self, tf: dict) -> dict:
@@ -152,33 +164,91 @@ class tf_idf(Model):
             for term, tf_score in tf_scores.items():
                 tfidf_scores[term] = tf_score * self.idf[term]
             tfidf[doc] = tfidf_scores
-        
+
         self.tfidf = tfidf
         return tfidf
-    
+
     def save(self):
         data = {"idf": self.idf, "tfidf": self.tfidf}
         with open(self.out_file + ".json", "w") as f:
-            json.dump({'model': 'tf_idf', 'data': data}, f)
+            json.dump({"model": "tf_idf", "data": data}, f)
         self.log("Data Saved", "Phantom-Indexer-tf_idf")
 
 class word2vec(Model):
-    def __init__(self, filename="index", out="indexed"):
-        super().__init__(filename, out)
+    def __init__(self, filename="index", out="indexed", key="url", val="content"):
+        super().__init__(filename, out, key, val)
+        self.model = None
 
     def train_word2vec(self):
-        pass
+        self.log("Training Word2Vec", "Phantom-Indexer")
+        sentences = list(self.data.values())
+        self.model = Word2Vec(sentences, min_count=1, window=5)
+        self.log("Word2Vec trained", "Phantom-Indexer")
 
-    def save(self, data):
-        with open(self.out_file + ".json", "w") as f:
-            json.dump({'model': 'word2vec', 'data': data}, f)
+    def load_model(self):
+        self.model = Word2Vec.load(self.out_file + ".model")
+        self.lookup = set(self.model.wv.key_to_index)
+        self.log("Word2Vec model loaded", "Phantom-Indexer")
+        
+        with open(self.out_file + ".json", "r") as f:
+            data = json.load(f)
+            data = data["data"]
+            self.document_embedding = data["embeddings"]
+            self.docs = data["docs"]
+            self.log("Document embeddings loaded", "word2vec-loader")
+
+    def run_query(self, query, count=5):
+        query = query.split()
+        query_tokens = [word for word in query if word in self.lookup]
+        if not query:
+            print("None of the words in the query are in the model's vocabulary.")
+            return None
+
+        query_vector = np.mean([self.model.wv[token] for token in query_tokens if token in self.model.wv], axis=0)
+
+        similarities = cosine_similarity([query_vector], self.document_embedding)
+        top_n_indices = np.argsort(similarities[0])[-count:]
+        top_n_similar_docs = [(self.docs[i], similarities[0][i]) for i in top_n_indices]
+        top_n_similar_docs.sort(key=lambda x: x[1], reverse=True)
+        return top_n_similar_docs
+
+    def test(self, query):
+        self.log(f"Testing Word2Vec with query: {query}", "Phantom-Indexer")
+        self.load_model()
+        result = self.run_query(query)
+        self.log(f"Result: {result}", "Phantom-Indexer")
+
+    def save(self):
+        if self.model:
+            self.model.save(self.out_file + ".model")
+            self.log("Word2Vec model saved", "Phantom-Indexer")
+
+            self.log("saving document embeddings", "Phantom-Indexer")
+            sentences = self.data.values()
+            docs = self.data.keys()
+            document_embeddings = []
+            for doc_tokens in sentences:
+                vectors = [self.model.wv[token] for token in doc_tokens if token in self.model.wv]
+                if vectors:
+                    doc_vector = np.mean(vectors, axis=0)
+                else:
+                    doc_vector = np.zeros(self.model.vector_size)
+                document_embeddings.append(doc_vector.tolist())
+
+            save_data = {"embeddings": document_embeddings, "docs": list(docs)}
+
+            with open(self.out_file + ".json", "w") as f:
+                json.dump({"model": "word2vec", "data": save_data}, f)
+
+        else:
+            self.log("No model to save", "Phantom-Indexer")
 
 IDF_CONTENT = os.environ.get("IDF_CONTENT", "1") == "1"
 IDF_TITLE = os.environ.get("IDF_TITLE", "1") == "1"
 
 if IDF_CONTENT:
     processor = PhantomIndexer("index", out="indexed")
-    processor.process()
+    processor.process(model="word2vec", key="url", val="content")
     processor.save()
     print("Indexing content completed!")
 
