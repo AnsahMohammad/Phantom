@@ -37,6 +37,8 @@ jobs:
         echo "Crawling completed"
     
     - name: Unittests
+      env:
+          REMOTE_DB: 0
       run: |
         pip install -r requirements.txt
         python3 -m unittest discover -s tests
