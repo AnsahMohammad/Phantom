@@ -15,25 +15,25 @@ class Model:
         self.in_file = filename
         self.out_file = out
 
-        self.logger = Logger(True, "Model_processor")
+        self.logger = Logger(True, author="base-Model")
         self.log = self.logger.log
 
         self.CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 500))
 
         database = Database()
         if not database.state:
-            self.log("Database not connected", "Model")
+            self.log("Database not connected", origin="init")
             return
         data = database.load(table=self.in_file, key=key, val=val)
         self.raw_data = data.copy()
         self.documents = len(data.keys())
-        self.log("data fetched")
+        self.log("data fetched", origin="init")
         self.data = self.preprocess(data)
         self.documents = len(self.data.keys())
-        self.log("data pre-processed")
+        self.log("data pre-processed", origin="init")
 
     def preprocess(self, data: dict) -> dict:
-        self.log("Processing Data", "Model-preprocessor")
+        self.log("Processing Data", origin="preprocess")
         count = 0
         processed_data = {}
         for doc, words in data.items():
@@ -50,16 +50,16 @@ class Model:
                 if count % self.CHUNK_SIZE == 0:  # Log status
                     self.log(
                         f"Processed {round((count/self.documents)*100,2)}% documents",
-                        "model-preprocess",
+                        origin="preprocess",
                     )
                 processed_data[doc] = processed_words
             except Exception as e:
-                self.logger.error(f"Error processing {doc}: {e}", "model-preprocess")
+                self.logger.error(f"Error processing {doc}: {e}", "preprocess")
                 continue
 
             del words
 
-        self.log("Data Processed", "model-preprocess")
+        self.log("Data Processed", origin="preprocess")
         return processed_data
 
     def test(self, a="0"):
@@ -77,10 +77,10 @@ class Model:
 
 class Processor:
     def __init__(self):
-        self.logger = Logger(True, "Model_processor")
+        self.logger = Logger(True, author="base-Processor")
         self.log = self.logger.log
 
-        self.log("Processor Ready", "Model_processor")
+        self.log("Processor Ready", origin="init")
 
     def preprocess(self, data: str):
         processed_query = []
@@ -91,7 +91,7 @@ class Processor:
                 processed_query.append(word)
 
         except Exception as e:
-            self.logger.error(f"Error processing query: {e}", "QEngine-pre-process")
+            self.logger.error(f"Error processing query: {e}", origin="pre-process")
 
         return processed_query
 
@@ -104,4 +104,4 @@ class Processor:
         return model, data
 
     def query(self):
-        self.log("Processing Data", "Model-preprocessor")
+        self.log("Processing Data", origin="query")

@@ -16,7 +16,7 @@ class Phantom_Query:
 
         self.showlogs = True
         self.title_table = False
-        self.logger = Logger(self.showlogs)
+        self.logger = Logger(self.showlogs, author="query_engine-Phantom_Query")
         self.log = self.logger.log
 
         db = Database()
@@ -29,7 +29,7 @@ class Phantom_Query:
 
         self.log(
             f"Query Engine called for in: {filename}\n IDF_CONTENT: {self.IDF_CONTENT}\n IDF_TITLE: {self.IDF_TITLE}",
-            "Query_Engine",
+            origin="init",
         )
 
         self.CONTENT_WEIGHT = int(os.environ.get("CONTENT_WEIGHT", 1))
@@ -43,12 +43,12 @@ class Phantom_Query:
             self.title_table = True
             self.titles = {}
             if not self.load_titles():
-                self.log("Failed to load titles", "Query_Engine")
+                self.log("Failed to load titles", origin="init")
                 self.title_table = False
             else:
-                self.log("Titles loaded", "Query_Engine")
+                self.log("Titles loaded", origin="init")
 
-        self.log("Query Engine Ready", "Query_Engine")
+        self.log("Query Engine Ready", origin="init")
 
     def load(self, filename):
         if self.IDF_CONTENT:
@@ -63,7 +63,7 @@ class Phantom_Query:
             self.title_processor.load(title_name)
 
     def query(self, query, count=10):
-        self.log(f"Query received : {query}", "Query_Engine")
+        self.log(f"Query received : {query}", origin="query")
 
         scores = defaultdict(float)
 
@@ -79,7 +79,7 @@ class Phantom_Query:
                 scores[doc] += self.TITLE_WEIGHT * score
 
         ranked_docs = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-        self.log(f"Ranked documents : {ranked_docs}", "Query_Engine")
+        self.log(f"Ranked documents : {ranked_docs}", origin="query")
 
         # Return the top n results
         final_results = []
@@ -102,16 +102,16 @@ class Phantom_Query:
     def load_titles(self):
         # load the titles from index.json
         if self.title_table:
-            self.log("Loading data from local file")
+            self.log("Loading data from local file", origin="load_titles")
             with open(self.title_path, "r") as f:
                 self.titles = json.load(f)
-            self.log(f"Data loaded from local file: {len(self.titles)}")
+            self.log(f"Data loaded from local file: {len(self.titles)}", origin="load_titles")
             return True
 
         elif self.remote_db:
             """TODO: Fetch data from remote DB using Database and not explicitly"""
             try:
-                self.log("Fetching data from remote DB")
+                self.log("Fetching data from remote DB", origin="load_titles")
                 start = 0
                 end = self.CHUNK_SIZE - 1
                 while True:
@@ -129,21 +129,21 @@ class Phantom_Query:
                     end += self.CHUNK_SIZE
                     self.log(
                         f"Data fetched from remote DB: {len(self.titles)}",
-                        "Phantom-Indexer-Loader",
+                        origin="load_titles",
                     )
 
                     if len(self.titles) > self.CHUNK_LIMIT:
-                        self.log("CHUNK limit reached", "Phantom-Indexer-Loader")
+                        self.log("CHUNK limit reached", origin="load_titles")
                         break
 
                 self.log(
                     f"Data fetched from remote DB: {len(self.titles)}",
-                    "Phantom-Indexer-Loader",
+                    origin="load_titles",
                 )
             except Exception as e:
                 self.logger.error(
                     f"Error fetching data from index table: {e}",
-                    "Phantom-Indexer-Loader",
+                    origin="load_titles",
                 )
                 return False
             return True

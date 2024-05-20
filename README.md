@@ -93,7 +93,7 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 
 - [ ] Error handling
 - [ ] Consistency in logs
-- [ ] Local db enable
+- [X] Local db enable
 
 ### Bump 0.10+
 
