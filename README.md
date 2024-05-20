@@ -91,8 +91,8 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 
 ### Bump 0.9.1
 
-- [ ] Error handling
-- [ ] Consistency in logs
+- [X] Error handling
+- [X] Consistency in logs
 - [X] Local db enable
 
 ### Bump 0.10+
