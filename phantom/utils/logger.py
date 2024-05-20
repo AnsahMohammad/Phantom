@@ -10,10 +10,9 @@ class Logger:
         self.storage = Storage(table_name="errors")
 
     def log(self, content, origin="", **kwargs):
-        author = self.author if author is None else author
         log_ = f"{time.strftime('%H:%M:%S')} : "
-        if author:
-            log_ += f"{author}-{origin} : "
+        
+        log_ += f"{self.author}-{origin} : "
 
         log_ += f"{content} | {kwargs}"
 
