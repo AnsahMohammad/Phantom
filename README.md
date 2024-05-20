@@ -102,6 +102,7 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 - [ ] Two layer crawling
 - [ ] Optimize the scheduler by storing visited nodes
 - [ ] Use unified crawler system in master-slave arch
+- [ ] Create Storage abstraction classes for local and remote client
 
 ### Bump 9
 

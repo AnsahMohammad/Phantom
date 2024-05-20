@@ -25,7 +25,7 @@ class Storage:
             print(f"Error while creating Supabase client: {e}")
             self.remote_db = False
 
-        self.log_errors = os.environ.get("LOG_ERRORS", False)
+        self.log_errors = int(os.environ.get("LOG_ERRORS", 0))
 
         print("Remote database : ", self.remote_db)
         print("DB Ready")
@@ -87,10 +87,15 @@ class Storage:
 class Database:
     def __init__(self):
         self.state = True
-        showlogs = os.environ.get("SHOW_LOGS", "1") == "1"
         self.CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 500))
         self.CHUNK_LIMIT = int(os.environ.get("CHUNK_LIMIT", 5000))
-        self.state = self.check_remote()
+        self.remote_db = int(os.environ.get("REMOTE_DB", 1))
+        if self.remote_db:
+            assert self.check_remote(), "Failed to connect to remote DB"
+            self.state = self.check_remote()
+        else:
+            self.state = True
+        
         print("DB Initialized : ", self.state)
 
     def check_remote(self):
@@ -114,7 +119,16 @@ class Database:
         return remote_db
 
     def load(self, table, key="url", val="content", START=0, LIMIT=None):
+        
+        if self.remote_db:
+            return self.load_remote(table, key, val, START, LIMIT)
 
+        return self.load_local(table, key, val, START, LIMIT)
+
+    def load_remote(self, table, key="url", val="content", START=0, LIMIT=None):
+        """
+        Fetch data from remote DB
+        """
         self.CHUNK_LIMIT = LIMIT if LIMIT else self.CHUNK_LIMIT
         start = START
         end = self.CHUNK_SIZE - 1
@@ -149,5 +163,23 @@ class Database:
             if len(data) >= self.CHUNK_SIZE:
                 return data
             return None
+
+        return data
+
+    def load_local(self, table, key="url", val="content", START=0, LIMIT=None):
+        """
+        No schema is enforced for local storage, make sure it is in the right format
+        """
+        self.CHUNK_LIMIT = LIMIT if LIMIT else self.CHUNK_LIMIT
+        data = {}
+        table_name = table + ".json"
+        try:
+            with open(table_name, "r") as f:
+                data = json.load(f)
+        except Exception as e:
+            print(f"Error loading data from {table_name}: {e}")
+            return None
+
+        data = {k: data[k] for k in list(data.keys())[START:START+self.CHUNK_LIMIT]}
 
         return data

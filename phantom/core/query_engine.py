@@ -109,6 +109,7 @@ class Phantom_Query:
             return True
 
         elif self.remote_db:
+            """TODO: Fetch data from remote DB using Database and not explicitly"""
             try:
                 self.log("Fetching data from remote DB")
                 start = 0
