@@ -12,23 +12,23 @@ class Word2vec(Model):
         self.model = None
 
     def train_word2vec(self):
-        self.log("Training Word2Vec", "Phantom-Indexer")
+        self.log("Training Word2Vec", origin="train_word2vec")
         sentences = list(self.data.values())
         self.model = Word2Vec(sentences, min_count=1, window=5)
-        self.log("Word2Vec trained", "Phantom-Indexer")
+        self.log("Word2Vec trained", origin="train_word2vec")
 
     def test(self, query):
-        self.log(f"Testing Word2Vec with query: {query}", "Phantom-Indexer")
+        self.log(f"Testing Word2Vec with query: {query}", origin="test")
         self.load_model()
         result = self.run_query(query)
-        self.log(f"Result: {result}", "Phantom-Indexer")
+        self.log(f"Result: {result}", origin="test")
 
     def save(self):
         if self.model:
             self.model.save(self.out_file + ".model")
-            self.log("Word2Vec model saved", "Phantom-Indexer")
+            self.log("Word2Vec model saved", origin="save")
 
-            self.log("saving document embeddings", "Phantom-Indexer")
+            self.log("saving document embeddings", origin="save")
             sentences = self.data.values()
             docs = self.data.keys()
             document_embeddings = []
@@ -50,7 +50,7 @@ class Word2vec(Model):
                 json.dump({"model": "word2vec", "data": save_data}, f)
 
         else:
-            self.log("No model to save", "Phantom-Indexer")
+            self.log("No model to save", origin="save")
 
 
 class Word2Vec_Processor(Processor):
@@ -61,16 +61,16 @@ class Word2Vec_Processor(Processor):
     def load(self, filename="indexed"):
         model, data = super().load(filename)
         if model != self.name:
-            self.logger.error("Model mismatch", "word2vec_processor")
+            self.logger.error("Model mismatch", origin="word2vec_processor-loader")
             raise ValueError("Model mismatch")
 
         self.model = Word2Vec.load(filename + ".model")
         self.lookup = set(self.model.wv.key_to_index)
-        self.log("Word2Vec model loaded", "word2vec_processor-load")
+        self.log("Word2Vec model loaded", origin="word2vec_processor-load")
 
         self.document_embedding = data["embeddings"]
         self.docs = data["docs"]
-        self.log("Document embeddings loaded", "word2vec_processor-load")
+        self.log("Document embeddings loaded", origin="word2vec_processor-load")
 
     def query(self, query, count=10):
         super().query()
@@ -85,7 +85,7 @@ class Word2Vec_Processor(Processor):
             [self.model.wv[token] for token in query_tokens if token in self.model.wv],
             axis=0,
         )
-        self.log("Query processed", "word2vec-processor-query")
+        self.log("Query processed", origin="word2vec-processor-query")
         similarities = cosine_similarity([query_vector], self.document_embedding)
         top_n_indices = np.argsort(similarities[0])[-count:]
         top_n_similar_docs = [(self.docs[i], similarities[0][i]) for i in top_n_indices]

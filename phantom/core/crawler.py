@@ -40,10 +40,10 @@ class Phantom:
         self.visited_urls = self.storage.fetch_visited()
 
         self.kill = False
-        self.logger = Logger(self.show_logs)
+        self.logger = Logger(self.show_logs, author="crawler-Phantom")
         self.log = self.logger.log
 
-        self.log("INIT-Phantom", "Phantom")
+        self.log("INIT-Phantom", origin="init")
 
     def crawler(self, id, url):
         burnout = self.BURNOUT
@@ -56,18 +56,18 @@ class Phantom:
         epoch = 1
 
         def status():
-            self.log("Status requested", f"Crawler {id}")
+            self.log("Status requested", origin=f"Crawler {id}")
             status = f"Crawler {id} \n"
             status += f"Root : {url} \n"
             status += f"Epoch : {epoch} \n"
             # status += f"Traversed : {traversed} \n"
             # status += f"Queue : {queue}"
 
-            self.log(status, f"Crawler {id}")
+            self.log(status, origin=f"Crawler {id}")
 
         while queue and not self.kill:
             if time.time() - start_time > burnout:
-                self.log("Burnout", f"Crawler {id}")
+                self.log("Burnout", origin=f"Crawler {id}")
                 break
 
             if epoch % 100 == 0:
@@ -79,12 +79,12 @@ class Phantom:
             url = parser.clean_url(url)
 
             if url in local_urls:
-                self.log("Already scanned", f"Crawler {id}")
+                self.log("Already scanned", origin=f"Crawler {id}")
                 continue
 
             local_urls.add(url)
             traversed.append(url)
-            self.log(f"Traversing {url}", f"Crawler {id}")
+            self.log(f"Traversing {url}", origin=f"Crawler {id}")
             parsed_data = parser.parse(url)
             neighbors, content, url, title = (
                 parsed_data["links"],
@@ -95,15 +95,14 @@ class Phantom:
             self.storage.add(url, content, title)
             self.title_storage.add(url, title)
             queue.extend(neighbors)
-            # self.log(f"Neighbors {neighbors}", f"Crawler {id}")
             epoch += 1
 
         queue.clear()
-        self.log("CRAWLER STOPPED", f"Crawler {id}")
+        self.log("CRAWLER STOPPED", origin=f"Crawler {id}")
 
     def update_urls(self, local_url, id):
         """update the local_urls with global index"""
-        self.log("Updating URLs", f"Crawler {id}")
+        self.log("Updating URLs", origin=f"Crawler {id}")
         for url in local_url:
             self.visited_urls.add(url)
 
@@ -125,16 +124,16 @@ class Phantom:
 
     def stop(self):
         self.kill = True
-        self.log("STOP-Phantom Issued", "Phantom")
+        self.log("STOP-Phantom Issued", origin="stop")
 
         for threads in self.threads:
             threads.join()
 
-        self.log("STOP-Phantom Stopped", "Phantom")
+        self.log("STOP-Phantom Stopped", origin="stop")
         self.end()
 
     def stats(self):
-        self.log("Status requested ", "Phantom")
+        self.log("Status requested ", origin="stats")
         # stats function
         print("Number of threads : ", self.thread_count)
         print("Threads : ")
@@ -155,9 +154,9 @@ class Phantom:
         if self.save_crawls:
             self.storage.save()
             self.title_storage.save()
-            self.log("Saved the indices", "Phantom")
+            self.log("Saved the indices", origin="end")
         else:
-            self.log("Indices not saved", "Phantom")
+            self.log("Indices not saved", origin="end")
 
         if self.print_logs:
             self.logger.save()

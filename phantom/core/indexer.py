@@ -18,15 +18,16 @@ class PhantomIndexer:
 
         db = Database()
         if not db.state:
-            self.log("Database not connected", "Phantom-Indexer")
+            self.log("Database not connected", author="indexer-PhantomIndexer")
             return
 
-        self.log("indexer init", "Phantom-Indexer")
+        self.log("indexer init", origin="init")
 
     def process(self, model="tf_idf", key="url", val="content"):
 
         self.log(
             f"Indexer called for in: {self.in_file}, out: {self.out_file}, key: {key}, val: {val} model: {model}",
+            origin="process",
         )
 
         if model == "tf_idf":
@@ -38,7 +39,7 @@ class PhantomIndexer:
             self.model = Word2vec(self.in_file, self.out_file)
             self.model.train_word2vec()
         else:
-            self.log("Invalid model", "Phantom-Indexer")
+            self.log("Invalid model", origin="process")
             return False
 
         return True
@@ -47,15 +48,15 @@ class PhantomIndexer:
         self.model.save()
 
         # self.model.test("water is very important")
-        self.log("Data Saved", "Phantom-Indexer")
+        self.log("Data Saved", origin="save")
 
     def save_titles(self, filename="titles"):
         """store url:title mapping in local file"""
-        self.log("Saving URL:Title mapping", "Phantom-Indexer")
+        self.log("Saving URL:Title mapping", origin="save_titles")
         data = {url: title for url, title in self.model.raw_data.items()}
         with open(filename + ".json", "w") as f:
             json.dump(data, f)
-        self.log(f"URL:Title mapping saved to {filename}.json", "Phantom-Indexer")
+        self.log(f"URL:Title mapping saved to {filename}.json", origin="save_titles")
 
 
 IDF_CONTENT = os.environ.get("IDF_CONTENT", "1") == "1"

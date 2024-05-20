@@ -7,7 +7,7 @@ import requests
 class Parser:
     def __init__(self, show_logs=True):
         self.show_logs = show_logs
-        self.logger = Logger(self.show_logs, "phantom-parser")
+        self.logger = Logger(self.show_logs, "parser-Parser")
         self.log = self.logger.log
 
     def clean_url(self, url):
@@ -28,7 +28,7 @@ class Parser:
             return None
 
     def parse(self, url) -> dict:
-        self.log(f"parsing {url}", "Parser")
+        self.log(f"parsing {url}", origin="parse")
 
         url = self.clean_url(url)
         content = self.fetch(url)

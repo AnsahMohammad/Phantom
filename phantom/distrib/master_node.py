@@ -21,7 +21,7 @@ class Server:
         self.nodes = []
         self.clients = []
         self.connection = None
-        self.logger = Logger(show_logs=True, author="Ph-Master")
+        self.logger = Logger(show_logs=True, author="master_node-Server")
         self.log = self.logger.log
         self.CLI_MODE = True
         self.burnout = burnout
@@ -29,29 +29,29 @@ class Server:
 
     def handle_client(self, client_socket):
         raddr = client_socket.getpeername()
-        self.log(f"listening to : {raddr[1]}", "<handle_client>")
+        self.log(f"listening to : {raddr[1]}", origin="<handle_client>")
         while self.running:
             request = client_socket.recv(1024)
-            self.log(f"{raddr[1]}: {request}", "<handle_client>")
+            self.log(f"{raddr[1]}: {request}", origin="<handle_client>")
 
             request = request.decode().split(",")
 
             action = request[0]
             if action == "close":
-                self.log(f"{raddr[1]} request closure", "<handle_client>")
+                self.log(f"{raddr[1]} request closure", origin="<handle_client>")
                 self._close_client(raddr[1])
                 break
             if action == "status":
-                self.log(f"{raddr[1]} responded status", "<handle_client>")
+                self.log(f"{raddr[1]} responded status", origin="<handle_client>")
                 self.statuses[raddr[1]] = request[1:]
             else:
                 client_socket.send(b"ACK!")
 
         client_socket.close()
-        self.log("Connection closed", "<handle_client>")
+        self.log("Connection closed", origin="<handle_client>")
 
     def _close_client(self, addr):
-        self.log(f"Closing client {addr}")
+        self.log(f"Closing client {addr}", origin="<close_client>")
         index = self.nodes.index(addr)
         self.nodes.pop(index)
         self.clients.pop(index)
@@ -61,17 +61,17 @@ class Server:
         client = self.clients[index]
         message = "status"
         client.send(message.encode())
-        self.log(f"Requesting status from {address}")
+        self.log(f"Requesting status from {address}", origin="<get_status>")
 
     def status(self):
-        self.log("status requested", "<status>")
-        self.log(f"Nodes: {self.nodes}", "<status>")
+        self.log("status requested", origin="<status>")
+        self.log(f"Nodes: {self.nodes}", origin="<status>")
         for node in self.nodes:
-            self.log(f"Requesting status from {node}")
+            self.log(f"Requesting status from {node}", origin="<status>")
             self.send_message("status", node)
 
     def send_message(self, message, address):
-        self.log(f"Sending message to {address}")
+        self.log(f"Sending message to {address}",origin="send_message")
         index = self.nodes.index(address)
         try:
             self.clients[index].send(message.encode())
@@ -82,7 +82,7 @@ class Server:
             self._close_client(address)
 
     def _broadcast(self, message):
-        self.log(f"broadcasting message : {message}")
+        self.log(f"broadcasting message : {message}", origin="broadcast")
 
         for client in self.clients:
             client.send(message.encode())
@@ -120,22 +120,22 @@ class Server:
                     count += 1
 
     def generate(self):
-        self.log("Generating the sites", "generator")
+        self.log("Generating the sites", origin="generate")
         if self.CLI_MODE:
             self.sites = input("Enter the sites saperated by commas : ").split(",")
 
         if not self.sites:
-            self.log("No sites present", "generator")
+            self.log("No sites present", origin="generate")
             return
         self.assign_sites()
 
-        self.log("Generated the sites", "generator")
+        self.log("Generated the sites", origin="generate")
         # now crawling them,
 
         for node in self.nodes:
             self._run(node)
 
-        self.log("crawling started", "generator")
+        self.log("crawling started", origin="generate")
 
     def _run(self, address):
         index = self.nodes.index(address)
@@ -144,7 +144,7 @@ class Server:
         message = f"crawl"
         client.send(message.encode())
 
-        self.log(f"set-up for {address}")
+        self.log(f"set-up for {address}", origin="_run")
 
     def _set_up(self, address, site):
         index = self.nodes.index(address)
@@ -153,14 +153,14 @@ class Server:
         message = f"setup,{site},{self.burnout}"
         client.send(message.encode())
 
-        self.log(f"set-up for {address}")
+        self.log(f"set-up for {address}", origin="_set_up")
 
     def _add_site(self, address, sites):
         index = self.nodes.index(address)
         client = self.clients[index]
 
         if len(sites) < 1:
-            self.log("cannot append less than 1 site", "Master-Appender")
+            self.log("cannot append less than 1 site", origin="add_site")
             return
 
         message = f"append"
@@ -168,16 +168,16 @@ class Server:
             message += f",{str(site)}"
         client.send(message.encode())
 
-        self.log(f"Add {len(sites)} sites for {address}", "Master-Appender")
+        self.log(f"Add {len(sites)} sites for {address}", origin="add_site")
 
     def run(self):
-        self.log("Starting the server", "<run>")
+        self.log("Starting the server", origin="<run>")
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind((self.host, self.port))
         self.server.listen(5)
         self.server.settimeout(1)
-        self.log(f"accepting {self.num_clients} clients", "<run>")
-        self.log(f"Listening on port {self.port}", "<run>")
+        self.log(f"accepting {self.num_clients} clients", origin="<run>")
+        self.log(f"Listening on port {self.port}", origin="<run>")
 
         while self.running:
             # print("<run()> : current status : ", self.running)
@@ -185,23 +185,22 @@ class Server:
                 client, addr = self.server.accept()
                 self.nodes.append(addr[1])
                 self.clients.append(client)
-                self.log(f"Accepted connection from: {addr[0]}:{addr[1]}")
+                self.log(f"Accepted connection from: {addr[0]}:{addr[1]}", origin="<run>")
                 client_handler = threading.Thread(
                     target=self.handle_client, args=(client,)
                 )
                 client_handler.start()
             except socket.timeout:
-                # self.log("Timeout", "<run>")
                 continue
 
-        self.log("server loop exit, waiting for closing", "<run>")
+        self.log("server loop exit, waiting for closing", origin="<run>")
 
     def start(self):
         try:
 
             self.running = True
             self.connection = threading.Thread(target=self.run)
-            self.log("Starting the connection ", "<start>")
+            self.log("Starting the connection ", origin="<start>")
             self.connection.start()
 
             while True:
@@ -250,7 +249,7 @@ class Server:
         index_data = {}
         titles_data = {}
         files_to_delete = []
-        self.log("merging the data", "<merger>")
+        self.log("merging the data", origin="<merge>")
         for filename in os.listdir("."):
             if filename.startswith("index"):
                 with open(filename, "r") as f:
@@ -263,35 +262,35 @@ class Server:
                     titles_data.update(data)
                 files_to_delete.append(filename)
 
-        self.log("merging done", "<merger>")
+        self.log("merging done", origin="<merge>")
         with open("index.json", "w") as f:
             json.dump(index_data, f)
         with open("titles.json", "w") as f:
             json.dump(titles_data, f)
-        self.log("merged data saved", "<merger>")
+        self.log("merged data saved", origin="<merge>")
 
         # Delete the files
         for filename in files_to_delete:
             os.remove(filename)
-        self.log("old files deleted", "<merger>")
+        self.log("old files deleted", origin="<merge>")
 
     def stop(self):
         print(self.nodes)
         self.running = False
-        self.log("running => false", "<stop>")
+        self.log("running => false", origin="<stop>")
 
         for node in self.nodes:
             self.send_message("stop", node)
 
         if self.connection:
-            self.log("stopping connection", "<stop>")
+            self.log("stopping connection", origin="<stop>")
             self.connection.join()
-            self.log("connection closed", "<stop>")
+            self.log("connection closed", origin="<stop>")
 
         if self.server:
-            self.log("server closing", "<stop>")
+            self.log("server closing", origin="<stop>")
             self.server.close()
-            self.log("server closed", "<stop>")
+            self.log("server closed", origin="<stop>")
 
         self.log("service stopped")
 
