@@ -29,6 +29,9 @@ jobs:
         bash build.sh 6
       
     - name: Local Flask server Test
+      env:
+          REMOTE_DB: 0
+
       run: |
         source .env/bin/activate
         python3 server.py &
