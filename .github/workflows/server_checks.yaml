@@ -40,6 +40,8 @@ jobs:
         echo "Flask test completed"
     
     - name: Test Gunicorn server
+      env:
+          REMOTE_DB: 0
       run: |
         source .env/bin/activate
         gunicorn -w 4 server:app &
