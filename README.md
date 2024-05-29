@@ -143,3 +143,5 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 - [X] Optimize parser to extract data effectively
 - [X] Add tests
 
+
+Track Uptime here : [Uptime](https://stats.uptimerobot.com/LhkdTL03Um)
