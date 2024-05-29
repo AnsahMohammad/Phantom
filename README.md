@@ -89,13 +89,18 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 
 ## Development and Maintanence
 
-### Bump 0.9.1
+### 0.9.2
+
+- [X] restrict send to db if EMPTY title and content
+- [X] Do not show result when score is 0
+
+### 0.9.1
 
 - [X] Error handling
 - [X] Consistency in logs
 - [X] Local db enable
 
-### Bump 0.10+
+### 0.10+
 
 - [ ] Distributed query processing
 - [ ] Caching locally
@@ -104,13 +109,13 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 - [ ] Use unified crawler system in master-slave arch
 - [ ] Create Storage abstraction classes for local and remote client
 
-### Bump 9
+### 0.9
 
 - [X] TF-idf only on title
 - [X] Better similarity measure on content
 - [X] Generalize Storage Class
 
-### Bump 8
+### 0.8
 
 - [X] Optimize the deployment
 - [X] Remove the nltk processing
@@ -118,21 +123,21 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 - [X] Migrate from local_db to cloud Phase-1
 - [X] Optimize the user interface
 
-### Bump 7
+### 0.7
 
 - [X] Replace content with meta data (perhaps?)
 - [X] Extract background worker sites from env
 - [X] AI support Beta
 - [X] Template optimizations
 
-### Bump 6
+### 0.6
 
 - [ ] Extract timestamp and sort accordingly
 - [X] Remote crawler service (use background workers)
 - [X] Analyze the extractable metadata
 - [X] Error Logger to supabase for analytics
 
-### Bump 5-
+### 0.5-
 
 - [X] Don't download everytime query engine is started
 - [ ] Crawler doesn't follow the schema of remote_db
