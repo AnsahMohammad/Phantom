@@ -31,7 +31,10 @@ class Storage:
         print("DB Ready")
 
     def add(self, key, value, title=None):
-        # TODO: Genaralize the function to accept any table name
+        # TODO: Generalize the function to accept any table name
+        if not value and not title:
+            return False
+
         if self.remote_db:
             try:
                 data, count = (
