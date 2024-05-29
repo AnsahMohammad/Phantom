@@ -11,8 +11,8 @@ import json
 class TestLogger(unittest.TestCase):
     def test_log(self):
         logger = Logger(show_logs=True, author="John")
-        logger.log("Test log", param1="value1", param2="value2")
-        expected_log = f"{time.strftime('%H:%M:%S')} : John : Test log | {{'param1': 'value1', 'param2': 'value2'}}"
+        logger.log("Test log", param1="value1", param2="value2", origin="test")
+        expected_log = f"{time.strftime('%H:%M:%S')} : John-test : Test log | {{'param1': 'value1', 'param2': 'value2'}}"
         self.assertIn(expected_log, logger.logs)
 
     def test_save(self):
@@ -23,8 +23,8 @@ class TestLogger(unittest.TestCase):
         with open("test_logs.txt", "r") as f:
             saved_logs = f.readlines()
         expected_logs = [
-            f"{time.strftime('%H:%M:%S')} : Jane : Test log 1 | {{'param1': 'value1'}}\n",
-            f"{time.strftime('%H:%M:%S')} : Jane : Test log 2 | {{'param2': 'value2'}}\n",
+            f"{time.strftime('%H:%M:%S')} : Jane- : Test log 1 | {{'param1': 'value1'}}\n",
+            f"{time.strftime('%H:%M:%S')} : Jane- : Test log 2 | {{'param2': 'value2'}}\n",
         ]
         self.assertEqual(saved_logs, expected_logs)
 
