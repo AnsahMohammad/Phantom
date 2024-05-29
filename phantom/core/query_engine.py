@@ -34,6 +34,7 @@ class Phantom_Query:
 
         self.CONTENT_WEIGHT = int(os.environ.get("CONTENT_WEIGHT", 1))
         self.TITLE_WEIGHT = int(os.environ.get("TITLE_WEIGHT", 2))
+        self.TIME_WEIGHT = int(os.environ.get("TIME_WEIGHT", 5))
 
         self.data = {}
         self.load(filename)
@@ -84,6 +85,12 @@ class Phantom_Query:
         # Return the top n results
         final_results = []
         for doc, score in ranked_docs[:count]:
+            
+            # send only if score > 0
+                # Hence may get results < count
+            if score == 0:
+                continue
+
             try:
                 title = self.titles[doc] if self.title_table else doc
                 final_results.append((doc, score, title))
