@@ -89,6 +89,12 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 
 ## Development and Maintanence
 
+### 0.9.2
+
+- [ ] Sort based on the index in remote_db for time sort
+- [ ] restrict send to db if EMPTY title and content
+- [ ] Do not show result when score is 0
+
 ### Bump 0.9.1
 
 - [X] Error handling
