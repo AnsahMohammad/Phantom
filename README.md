@@ -91,7 +91,6 @@ This project is licensed under the terms of the Apache License. See the LICENSE 
 
 ### 0.9.2
 
-- [ ] Sort based on the index in remote_db for time sort
 - [X] restrict send to db if EMPTY title and content
 - [X] Do not show result when score is 0
 
